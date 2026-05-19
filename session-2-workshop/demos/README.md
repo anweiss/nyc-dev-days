@@ -10,7 +10,11 @@ This document is the master reference for all demos in the workshop. Demos are d
 
 **Demo Repo:** `anweiss/nyc-dev-days` (this repo)  
 **Demo App:** `session-2-workshop/demos/demo-app/` — TechMart  
-**Pre-staged Issues:** [#25](https://github.com/anweiss/nyc-dev-days/issues/30) (bug) · [#26](https://github.com/anweiss/nyc-dev-days/issues/31) (feature)
+**Pre-staged Issues:** the latest open `bug + demo + session-2` and `enhancement + demo + session-2` issues, recreated each time **Reset Session 2 Demo** is run. Find them with:
+
+```bash
+gh issue list --repo anweiss/nyc-dev-days --label "demo" --label "session-2" --state open
+```
 
 ---
 
@@ -31,7 +35,7 @@ This document is the master reference for all demos in the workshop. Demos are d
 ## Pre-Demo Setup Checklist
 
 - [ ] **Actions → Reset Session 2 Demo** — run the workflow (resets issues, labels, PRs)
-- [ ] `gh issue list --repo anweiss/nyc-dev-days --label "session-2" --state open` — verify Issues #25 and #26 are open
+- [ ] `gh issue list --repo anweiss/nyc-dev-days --label "demo" --label "session-2" --state open` — verify the pre-staged bug + feature issues are open (numbers vary; recreated by each reset run)
 - [ ] Open `session-2-workshop/demos/demo-app/index.html` locally (or via GitHub Pages) — confirm TechMart loads
 - [ ] VS Code open at the **repo root** (`nyc-dev-days/`) so `.vscode/mcp.json` loads, with Copilot extension active
 - [ ] Browser: logged into github.com on demo account
