@@ -5,7 +5,7 @@
 - **Duration:** 45 minutes (5 demos + discussion + Q&A)
 - **Format:** Workshop — conversational, hands-on-friendly
 - **Central narrative:** TechMart's Sprint 1 hits a dependency crisis; we show three escalating ways to handle it, culminating in a fully automated agentic workflow
-- **Key moment:** Demo 2, Part C — closing Issue #35 live and watching 9 issues cascade in ~60 seconds
+- **Key moment:** Demo 2, Part C — closing Issue #3 live and watching 9 issues cascade in ~60 seconds
 
 ---
 
@@ -13,8 +13,8 @@
 
 ### GitHub repo
 - [ ] All 24 TechMart issues created and open (run `scripts/setup/03-issues.sh` if needed)
-- [ ] Issue #35 (CART-003) is open and labeled `blocked`
-- [ ] Issues #41, #43, #44, #45, #46, #47, #49, #50, #51, #52 have no cascade comments
+- [ ] Issue #3 (CART-003) is open and labeled `blocked`
+- [ ] Issues #9, #11, #12, #13, #14, #15, #17, #18, #19, #20 have no cascade comments
 - [ ] `sprint-impact-analysis.lock.yml` is present in `.github/workflows/`
 - [ ] Agentic workflow is enabled on the repo (check repo Actions settings)
 - [ ] Sprint 1 board shows CART-003 as Blocked
@@ -28,7 +28,7 @@
 ### Browser setup
 - [ ] Tab 1: Repository home
 - [ ] Tab 2: Sprint 1 project board
-- [ ] Tab 3: Issue #35 (CART-003)
+- [ ] Tab 3: Issue #3 (CART-003)
 - [ ] Tab 4: GitHub Actions → Sprint Impact Analysis
 - [ ] Tab 5: Copilot Chat on GitHub.com
 - [ ] Tab 6: GHEC org settings → Copilot
@@ -38,10 +38,10 @@
 ## Reset Between Runs
 
 If you've run the cascade demo already:
-1. Re-open Issue #35 → **Reopen issue**
-2. Remove `blocked` labels from issues #41, #43, #44, #45, #46, #47, #49, #50, #51, #52
+1. Re-open Issue #3 → **Reopen issue**
+2. Remove `blocked` labels from issues #9, #11, #12, #13, #14, #15, #17, #18, #19, #20
 3. Delete cascade comments from those issues (look for comments from `github-actions[bot]`)
-4. Restore Issue #35's milestone to "Sprint 1: Foundation & Core Shopping"
+4. Restore Issue #3's milestone to "Sprint 1: Foundation & Core Shopping"
 
 Or run the reset workflow (if configured): **Actions → Reset Demo Environment → Run workflow**
 

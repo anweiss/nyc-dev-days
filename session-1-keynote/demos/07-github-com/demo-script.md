@@ -30,7 +30,7 @@ What are the biggest risks to our Sprint 1 delivery? Look at the open issues and
 **What to say:**
 > "Copilot on GitHub.com is repo-aware. It can read our code, our issues, our history. I'm asking it to reason about our sprint risk — without me having to copy-paste anything into a separate AI tool."
 
-Copilot should identify Issue #35 (CART-003 is blocked) as the primary risk and mention that issues #41, #43, and #46 in later sprints depend on it.
+Copilot should identify Issue #3 (CART-003 is blocked) as the primary risk and mention that issues #9, #11, and #14 in later sprints depend on it.
 
 ---
 
@@ -75,4 +75,4 @@ Then ask Copilot to help structure it:
 
 ## Fallback
 
-If Copilot Chat is slow: show the sprint board and Issue #35 manually, walk through the dependency chain in the talking points. Use `gh issue list` in the terminal as an alternative to the GitHub.com chat.
+If Copilot Chat is slow: show the sprint board and Issue #3 manually, walk through the dependency chain in the talking points. Use `gh issue list` in the terminal as an alternative to the GitHub.com chat.

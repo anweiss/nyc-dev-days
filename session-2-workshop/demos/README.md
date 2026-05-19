@@ -9,8 +9,8 @@ This document is the master reference for all demos in the workshop. Demos are d
 > **Theme:** Show the full agentic developer loop — from understanding the assistive-to-agentic shift, through building and customizing agents, connecting them to enterprise systems, and governing the whole thing at scale.
 
 **Demo Repo:** `anweiss/nyc-dev-days` (this repo)  
-**Demo App:** `session-2-workshop/demos/demo-app/` — TaskFlow API  
-**Pre-staged Issues:** [#30](https://github.com/anweiss/nyc-dev-days/issues/30) (bug) · [#31](https://github.com/anweiss/nyc-dev-days/issues/31) (feature)
+**Demo App:** `session-2-workshop/demos/demo-app/` — TechMart  
+**Pre-staged Issues:** [#25](https://github.com/anweiss/nyc-dev-days/issues/30) (bug) · [#26](https://github.com/anweiss/nyc-dev-days/issues/31) (feature)
 
 ---
 
@@ -31,9 +31,9 @@ This document is the master reference for all demos in the workshop. Demos are d
 ## Pre-Demo Setup Checklist
 
 - [ ] **Actions → Reset Session 2 Demo** — run the workflow (resets issues, labels, PRs)
-- [ ] `gh issue list --repo anweiss/nyc-dev-days --label "session-2" --state open` — verify Issues #30 and #31 are open
-- [ ] `cd session-2-workshop/demos/demo-app && npm install && npm test` — confirm 1 test fails (intentional)
-- [ ] VS Code open with `demo-app/` and Copilot extension active
+- [ ] `gh issue list --repo anweiss/nyc-dev-days --label "session-2" --state open` — verify Issues #25 and #26 are open
+- [ ] Open `session-2-workshop/demos/demo-app/index.html` locally (or via GitHub Pages) — confirm TechMart loads
+- [ ] VS Code open at the **repo root** (`nyc-dev-days/`) so `.vscode/mcp.json` loads, with Copilot extension active
 - [ ] Browser: logged into github.com on demo account
 - [ ] MCP server configured (see `04-mcp/mcp-config-example.json`)
 - [ ] GitHub Enterprise org available for Demo 5
@@ -54,13 +54,14 @@ This document is the master reference for all demos in the workshop. Demos are d
 
 ## Hands-On Workshop Setup
 
-Attendees follow along with the TaskFlow API:
+Attendees follow along with TechMart:
 
 ```bash
 git clone https://github.com/anweiss/nyc-dev-days.git
-cd nyc-dev-days/session-2-workshop/demos/demo-app
-npm install
-npm test    # One test intentionally fails — that's the starting point
+cd nyc-dev-days
+# Open the repo root in VS Code so `.vscode/mcp.json` is picked up
+# TechMart is a static HTML/CSS/JS app — open `session-2-workshop/demos/demo-app/index.html`
+# directly, or browse it live at https://anweiss.github.io/nyc-dev-days/session-2-workshop/demos/demo-app/
 ```
 
 See `session-2-workshop/ATTENDEE-GUIDE.md` for the full guided exercises.

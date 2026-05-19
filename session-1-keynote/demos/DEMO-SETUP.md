@@ -28,13 +28,13 @@ Session 1 tells the story of a developer named **Alex** working through a sprint
 | File | Purpose |
 |------|---------|
 | `02-coding-agent/demo-script.md` | Live walkthrough script |
-| `02-coding-agent/sample-issue.md` | PDP-001 issue text (pre-staged as Issue #36) |
+| `02-coding-agent/sample-issue.md` | PDP-001 issue text (pre-staged as Issue #4) |
 | `02-coding-agent/expected-pr/product.html` | Reference: what the agent should produce |
 | `02-coding-agent/expected-pr/README.md` | Acceptance criteria checklist for the PR |
 | `.github/copilot-instructions.md` | Coding standards the agent follows |
 
 **Setup:**
-1. Verify Issue #36 (PDP-001) is open with no assignee — run **Actions → Reset Session 1 Demo** if needed
+1. Verify Issue #4 (PDP-001) is open with no assignee — run **Actions → Reset Session 1 Demo** if needed
 2. Confirm Coding Agent is enabled: **Settings → Copilot → Coding agent**
 3. Pre-assign the issue to Copilot before the talk to avoid live wait time
 
@@ -133,7 +133,7 @@ Run **Actions → Reset Session 1 Demo** (30 min before going on stage):
 |------|--------|
 | 1 | Closes all open PRs labeled `demo` and deletes their branches |
 | 2 | Deletes the `demo/pdp-001-product-detail-page` branch |
-| 3 | Removes Copilot assignment from Issue #36 (PDP-001) |
+| 3 | Removes Copilot assignment from Issue #4 (PDP-001) |
 | 4 | Removes `blocked` labels from any issues the sprint-impact workflow added |
 
 ---
@@ -143,7 +143,7 @@ Run **Actions → Reset Session 1 Demo** (30 min before going on stage):
 - [ ] **Actions → Reset Session 1 Demo** — run with all defaults
 - [ ] `gh auth status` — CLI authenticated
 - [ ] `gh extension list | grep copilot` — `gh copilot` extension installed
-- [ ] Issue #36 (PDP-001) is open, no assignee, no `demo` label
+- [ ] Issue #4 (PDP-001) is open, no assignee, no `demo` label
 - [ ] GHAS `js/xss` alert visible in **Security → Code scanning**
 - [ ] `MCP: List Servers` → `techmart-runbook` is **Running**, `search_runbooks` tool enabled
 - [ ] VS Code: `nyc-dev-days/` repo root open, Copilot extension active
@@ -153,4 +153,4 @@ Run **Actions → Reset Session 1 Demo** (30 min before going on stage):
 - [ ] Actions tab open in a second browser tab
 - [ ] Font 18pt+ terminal, 140% zoom VS Code
 - [ ] Do Not Disturb enabled, Slack and email closed
-- [ ] **Pre-assign Issue #36 to Copilot** (saves live wait time during Demo 2)
+- [ ] **Pre-assign Issue #4 to Copilot** (saves live wait time during Demo 2)

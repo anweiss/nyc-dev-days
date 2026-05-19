@@ -28,7 +28,7 @@ This document is the master reference for all demos in the keynote. Demos run in
 
 ## Demo Application
 
-All demos use the **DevDay Task API** — a fictional Node.js REST API in [`demo-app/`](./demo-app/). The app intentionally contains code-quality issues (missing error handling, SQL injection) that are surfaced during demos 3 and 4.
+All demos use the **TechMart** — a fictional Node.js REST API in [`demo-app/`](./demo-app/). The app intentionally contains code-quality issues (missing error handling, SQL injection) that are surfaced during demos 3 and 4.
 
 For detailed file mappings, environment setup, and the reset workflow, see **[`DEMO-SETUP.md`](./DEMO-SETUP.md)**.
 

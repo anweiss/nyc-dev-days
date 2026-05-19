@@ -33,7 +33,7 @@ Walk through key sections:
 
 ### Step 2 — Issue quality matters
 
-Open Issue #36 (PDP-001) — show the well-structured version.
+Open Issue #4 (PDP-001) — show the well-structured version.
 
 Then show a hypothetical bad issue (type it out or have a pre-written example):
 ```

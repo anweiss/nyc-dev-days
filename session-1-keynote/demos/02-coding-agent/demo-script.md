@@ -1,6 +1,6 @@
 # Demo Script: GitHub Copilot Coding Agent
 
-**Goal:** Show the Copilot coding agent autonomously turning Issue #36 (PDP-001) into a pull request.  
+**Goal:** Show the Copilot coding agent autonomously turning Issue #4 (PDP-001) into a pull request.  
 **Duration:** ~6 minutes  
 **Context in talk:** Developer assigns the Product Detail Page issue to the agent instead of implementing it.
 
@@ -9,7 +9,7 @@
 ## Prerequisites
 
 - [ ] Copilot Coding Agent enabled: **Repo Settings → Copilot → Coding agent → Enable**
-- [ ] Issue #36 (PDP-001) is open with no assignee (run **Actions → Reset Session 1 Demo** to verify)
+- [ ] Issue #4 (PDP-001) is open with no assignee (run **Actions → Reset Session 1 Demo** to verify)
 - [ ] `.github/copilot-instructions.md` is present in the repo
 - [ ] Two browser tabs: one on the issue, one on the Actions tab
 - [ ] **Pre-run option:** Assign the issue to Copilot before the talk so the run is ~80% complete when you demo it live
@@ -20,7 +20,7 @@
 
 ### Step 1 — Show the issue
 
-Navigate to Issue #36 in the TechMart repo on GitHub.com.
+Navigate to Issue #4 in the TechMart repo on GitHub.com.
 
 **What to say:**
 > "Here's PDP-001 — the Product Detail Page. Clear description, specific acceptance criteria, explicit constraints: vanilla JS only, no new dependencies. This is what an 'agent-ready' issue looks like. Bounded scope. Measurable success. No architectural ambiguity."

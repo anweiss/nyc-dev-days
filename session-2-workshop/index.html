@@ -847,7 +847,7 @@
   </div>
 
   <!-- ── SLIDE 7 · Agentic Workflows ── -->
-  <div class="slide layout-demo" data-notes="Demo 2 has three escalating parts. Part A: ad-hoc Copilot Chat — ask which issues depend on CART-003. Part B: the structured prompt template in .github/prompts/inspect-delay.prompt.md. Part C: close Issue #35 as 'not planned' and watch the sprint-impact-analysis workflow cascade 9 notifications automatically.">
+  <div class="slide layout-demo" data-notes="Demo 2 has three escalating parts. Part A: ad-hoc Copilot Chat — ask which issues depend on CART-003. Part B: the structured prompt template in .github/prompts/inspect-delay.prompt.md. Part C: close Issue #3 as 'not planned' and watch the sprint-impact-analysis workflow cascade 9 notifications automatically.">
     <div class="demo-wrap">
       <div class="demo-left">
         <div class="demo-tag">Demo 2</div>
@@ -858,14 +858,14 @@
         <ul class="points" style="margin-bottom:16px">
           <li><span class="bullet green"></span><span><strong>Part A — Ad-hoc:</strong> Ask Copilot Chat "which issues depend on #3?" — it reads issue bodies, traces <code style="color:var(--muted)">## Depends On</code> sections</span></li>
           <li><span class="bullet green"></span><span><strong>Part B — Template:</strong> <code style="color:var(--orange)">.github/prompts/inspect-delay.prompt.md</code> — fill in the blanks, always get the same 5-section report</span></li>
-          <li><span class="bullet green"></span><span><strong>Part C — Automated:</strong> Close #35 as "not planned" → <code style="color:var(--purple)">sprint-impact-analysis</code> workflow fires → 9 issues notified in ~60 seconds</span></li>
+          <li><span class="bullet green"></span><span><strong>Part C — Automated:</strong> Close #3 as "not planned" → <code style="color:var(--purple)">sprint-impact-analysis</code> workflow fires → 9 issues notified in ~60 seconds</span></li>
         </ul>
         <div class="code-block">
           <div class="comment"># sprint-impact-analysis (gh-aw)</div>
           <div><span class="key">on:</span></div>
           <div>&nbsp;&nbsp;<span class="key">issues:</span></div>
           <div>&nbsp;&nbsp;&nbsp;&nbsp;<span class="key">types:</span> <span class="val">[closed, demilestoned]</span></div>
-          <div><span class="comment"># Cascades to: #41, #43, #44, #45, #46, #47,</span></div>
+          <div><span class="comment"># Cascades to: #9, #11, #12, #13, #14, #15,</span></div>
           <div><span class="comment">#             #17, #18, #19, #20 across 4 sprints</span></div>
         </div>
       </div>

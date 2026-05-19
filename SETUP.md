@@ -56,7 +56,7 @@ Creates 5 milestones: Sprint 1–5 with 2-week due dates. Note the milestone num
 
 ## Step 3 — Create issues
 
-> ⚠️ **Run this in a fresh repo with no existing issues.** Issue #33–56 must be sequential for the `sprint-impact-analysis` dependency graph to work correctly.
+> ⚠️ **Run this in a fresh repo with no existing issues.** Issues #1–24 must be sequential for the `sprint-impact-analysis` dependency graph to work correctly.
 
 ```bash
 bash scripts/setup/03-issues.sh anweiss/nyc-dev-days

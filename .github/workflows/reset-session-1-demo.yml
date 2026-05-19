@@ -115,7 +115,7 @@ jobs:
             --label "enhancement,demo,session-1" \
             --body "## Description
 
-          Add a \`GET /health\` endpoint that returns the current health status of the DevDay Task API, including:
+          Add a \`GET /health\` endpoint that returns the current health status of the TechMart, including:
 
           - Application version (from \`package.json\`)
           - Server uptime in seconds

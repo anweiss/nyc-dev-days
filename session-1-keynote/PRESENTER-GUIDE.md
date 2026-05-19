@@ -11,7 +11,7 @@
 1. Complete `SETUP.md` at the repo root — creates issues, labels, milestones, and project boards
 2. Complete `demos/DEMO-SETUP.md` — verifies each demo's environment is ready
 3. Run **Actions → Reset Session 1 Demo** 30 minutes before going on stage
-4. **Pre-assign Issue #36 (PDP-001) to Copilot** — avoids a live wait during Demo 2
+4. **Pre-assign Issue #4 (PDP-001) to Copilot** — avoids a live wait during Demo 2
 
 ---
 

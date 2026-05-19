@@ -41,7 +41,7 @@ Try this yourself with any dependency-linked issue.
 Found at `.github/prompts/inspect-delay.prompt.md`. Fill in `[issue]`, `[delay reason]`, and paste into any Copilot Chat session with the repo attached. Always returns the same 5-section report.
 
 **Part C — Live Cascade:**
-Closing Issue #35 as "not planned" triggers the `sprint-impact-analysis` agentic workflow. It traces all dependency chains and comments on 9 impacted issues with AI-written narratives.
+Closing Issue #3 as "not planned" triggers the `sprint-impact-analysis` agentic workflow. It traces all dependency chains and comments on 9 impacted issues with AI-written narratives.
 
 ### Demo 3 — Building & Customizing Agents
 The agent's rulebook: `.github/copilot-instructions.md`
