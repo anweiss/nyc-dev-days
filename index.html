@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>NYC Dev Days 2026 — GitHub + AI</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #0d1117;
+      --surface: #161b22;
+      --border: #30363d;
+      --text: #e6edf3;
+      --muted: #8b949e;
+      --accent: #238636;
+      --accent-hover: #2ea043;
+      --blue: #58a6ff;
+      --purple: #bc8cff;
+      --orange: #f0883e;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    header {
+      width: 100%;
+      padding: 24px 48px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    header svg { color: var(--text); }
+
+    header h1 {
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: var(--text);
+    }
+
+    header span {
+      color: var(--muted);
+      font-size: 0.9rem;
+    }
+
+    main {
+      width: 100%;
+      max-width: 1100px;
+      padding: 64px 32px;
+    }
+
+    .hero {
+      text-align: center;
+      margin-bottom: 64px;
+    }
+
+    .hero .badge {
+      display: inline-block;
+      background: rgba(35, 134, 54, 0.15);
+      border: 1px solid rgba(35, 134, 54, 0.4);
+      color: #3fb950;
+      font-size: 0.75rem;
+      font-weight: 600;
+      padding: 4px 12px;
+      border-radius: 20px;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      margin-bottom: 20px;
+    }
+
+    .hero h2 {
+      font-size: clamp(2rem, 4vw, 3rem);
+      font-weight: 700;
+      line-height: 1.2;
+      margin-bottom: 16px;
+      background: linear-gradient(135deg, #e6edf3 0%, #58a6ff 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .hero p {
+      font-size: 1.15rem;
+      color: var(--muted);
+      max-width: 600px;
+      margin: 0 auto;
+      line-height: 1.7;
+    }
+
+    .sessions {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(420px, 1fr));
+      gap: 24px;
+    }
+
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 32px;
+      transition: border-color 0.2s, transform 0.2s, box-shadow 0.2s;
+      text-decoration: none;
+      color: inherit;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .card:hover {
+      border-color: var(--blue);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 32px rgba(88, 166, 255, 0.1);
+    }
+
+    .card-meta {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .session-tag {
+      font-size: 0.7rem;
+      font-weight: 700;
+      padding: 3px 10px;
+      border-radius: 20px;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+
+    .session-tag.keynote {
+      background: rgba(88, 166, 255, 0.15);
+      border: 1px solid rgba(88, 166, 255, 0.4);
+      color: var(--blue);
+    }
+
+    .session-tag.workshop {
+      background: rgba(188, 140, 255, 0.15);
+      border: 1px solid rgba(188, 140, 255, 0.4);
+      color: var(--purple);
+    }
+
+    .card h3 {
+      font-size: 1.4rem;
+      font-weight: 700;
+      line-height: 1.3;
+    }
+
+    .card .subtitle {
+      font-size: 0.9rem;
+      color: var(--muted);
+      font-style: italic;
+    }
+
+    .card p {
+      color: var(--muted);
+      font-size: 0.95rem;
+      line-height: 1.6;
+    }
+
+    .card .topics {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 4px;
+    }
+
+    .topic-pill {
+      font-size: 0.75rem;
+      padding: 4px 10px;
+      background: rgba(48, 54, 61, 0.8);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      color: var(--muted);
+    }
+
+    .card .cta {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: auto;
+      padding-top: 16px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: var(--blue);
+    }
+
+    .card:hover .cta { color: #79c0ff; }
+
+    footer {
+      margin-top: auto;
+      padding: 32px;
+      color: var(--muted);
+      font-size: 0.85rem;
+      text-align: center;
+      border-top: 1px solid var(--border);
+      width: 100%;
+    }
+
+    @media (max-width: 600px) {
+      .sessions { grid-template-columns: 1fr; }
+      header { padding: 16px 24px; }
+      main { padding: 40px 20px; }
+    }
+
+    .wifi-btn {
+      margin-left: auto;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(88, 166, 255, 0.1);
+      border: 1px solid rgba(88, 166, 255, 0.35);
+      color: var(--blue);
+      font-size: 0.85rem;
+      font-weight: 600;
+      padding: 7px 14px;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background 0.2s, border-color 0.2s;
+    }
+
+    .wifi-btn:hover {
+      background: rgba(88, 166, 255, 0.18);
+      border-color: var(--blue);
+    }
+
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(1, 4, 9, 0.75);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 200;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.2s;
+    }
+
+    .modal-overlay.open {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .modal {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 36px 40px;
+      max-width: 420px;
+      width: 90%;
+      text-align: center;
+    }
+
+    .modal-icon { font-size: 2.5rem; margin-bottom: 12px; }
+
+    .modal h3 {
+      font-size: 1.25rem;
+      font-weight: 700;
+      margin-bottom: 20px;
+      color: var(--text);
+    }
+
+    .wifi-steps {
+      list-style: none;
+      text-align: left;
+      margin-bottom: 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .wifi-steps li {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      color: var(--text);
+      font-size: 0.95rem;
+      line-height: 1.5;
+    }
+
+    .wifi-steps .step-num {
+      flex-shrink: 0;
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      background: rgba(88, 166, 255, 0.15);
+      border: 1px solid rgba(88, 166, 255, 0.4);
+      color: var(--blue);
+      font-size: 0.75rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .wifi-steps code {
+      background: rgba(48, 54, 61, 0.8);
+      border: 1px solid var(--border);
+      border-radius: 5px;
+      padding: 1px 6px;
+      font-size: 0.9em;
+      color: var(--orange);
+    }
+
+    .modal .btn-close {
+      background: var(--accent);
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      padding: 9px 24px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .modal .btn-close:hover { background: var(--accent-hover); }
+  </style>
+</head>
+<body>
+  <header>
+    <svg height="28" viewBox="0 0 16 16" width="28" fill="currentColor" aria-hidden="true">
+      <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38
+        0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13
+        -.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66
+        .07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15
+        -.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0
+        1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82
+        1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01
+        1.93-.01 2.2 0 .21.15.46.55.38A8.012 8.012 0 0 0 16 8c0-4.42-3.58-8-8-8z"/>
+    </svg>
+    <div>
+      <h1>NYC Dev Days 2026</h1>
+      <span>GitHub + AI Sessions</span>
+    </div>
+    <button class="wifi-btn" onclick="document.getElementById('wifiModal').classList.add('open')" aria-haspopup="dialog">
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true">
+        <path d="M8 1a7 7 0 1 0 0 14A7 7 0 0 0 8 1zm0 13A6 6 0 1 1 8 2a6 6 0 0 1 0 12z"/>
+        <path d="M10.243 5.757a3.5 3.5 0 0 0-4.95 0 .5.5 0 0 0 .707.707 2.5 2.5 0 0 1 3.536 0 .5.5 0 0 0 .707-.707z"/>
+        <path d="M11.657 4.343a5.5 5.5 0 0 0-7.778 0 .5.5 0 0 0 .707.707 4.5 4.5 0 0 1 6.364 0 .5.5 0 0 0 .707-.707z"/>
+        <circle cx="8" cy="9" r="1"/>
+      </svg>
+      WiFi
+    </button>
+  </header>
+
+  <!-- ===== WIFI MODAL ===== -->
+  <div class="modal-overlay" id="wifiModal" onclick="if(event.target===this)this.classList.remove('open')" role="dialog" aria-modal="true" aria-labelledby="wifiModalTitle">
+    <div class="modal">
+      <div class="modal-icon">📶</div>
+      <h3 id="wifiModalTitle">WiFi Connection</h3>
+      <ol class="wifi-steps">
+        <li>
+          <span class="step-num">1</span>
+          <span>Connect to <code>MSFTGUEST</code></span>
+        </li>
+        <li>
+          <span class="step-num">2</span>
+          <span>Select <strong>Event Attendee Code</strong></span>
+        </li>
+        <li>
+          <span class="step-num">3</span>
+          <span>Code: <code>msevent0515</code></span>
+        </li>
+      </ol>
+      <button class="btn-close" onclick="document.getElementById('wifiModal').classList.remove('open')">Got it</button>
+    </div>
+  </div>
+
+  <main>
+    <section class="hero">
+      <div class="badge">NYC Dev Days 2026</div>
+      <h2>GitHub Copilot &amp; Agentic AI</h2>
+      <p>Two sessions built around <strong>TechMart</strong> — a fictional e-commerce store with a 24-issue sprint backlog and a dependency crisis that drives the demos across both sessions.</p>
+    </section>
+
+    <div class="sessions">
+
+      <a class="card" href="session-1-keynote/index.html">
+        <div class="card-meta">
+          <span class="session-tag keynote">Keynote</span>
+        </div>
+        <h3>Session 1</h3>
+        <p class="subtitle">"A Day in the Life of a Developer with GitHub + AI"</p>
+        <p>Alex's morning with the TechMart team — Copilot CLI in the terminal, assigning PDP-001 to the coding agent, reviewing the PR, fixing an XSS via GHAS Autofix, using a custom extension, and finishing back in the IDE and on GitHub.com.</p>
+        <div class="topics">
+          <span class="topic-pill">Copilot CLI</span>
+          <span class="topic-pill">Coding Agent</span>
+          <span class="topic-pill">Code Review</span>
+          <span class="topic-pill">Code Quality</span>
+          <span class="topic-pill">SDK / Extensions</span>
+          <span class="topic-pill">VS Code &amp; JetBrains</span>
+          <span class="topic-pill">GitHub.com</span>
+        </div>
+        <div class="cta">
+          View Presentation
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+            <path fill-rule="evenodd" d="M1 8a.5.5 0 0 1 .5-.5h11.793l-3.147-3.146a.5.5 0 0 1 .708-.708l4 4a.5.5 0 0 1 0 .708l-4 4a.5.5 0 0 1-.708-.708L13.293 8.5H1.5A.5.5 0 0 1 1 8z"/>
+          </svg>
+        </div>
+      </a>
+
+      <a class="card" href="session-2-workshop/index.html">
+        <div class="card-meta">
+          <span class="session-tag workshop">Workshop</span>
+        </div>
+        <h3>Session 2</h3>
+        <p class="subtitle">"The Agentic Developer Loop"</p>
+        <p>CART-003 is cancelled — watch the <code style="font-size:0.85em">sprint-impact-analysis</code> agentic workflow notify 9 downstream issues automatically. Plus: coding agent customization, GitHub MCP, and enterprise governance.</p>
+        <div class="topics">
+          <span class="topic-pill">Assistive vs. Agentic</span>
+          <span class="topic-pill">Agentic Workflows</span>
+          <span class="topic-pill">Coding Agents</span>
+          <span class="topic-pill">MCP</span>
+          <span class="topic-pill">Enterprise Governance</span>
+        </div>
+        <div class="cta">
+          View Presentation
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+            <path fill-rule="evenodd" d="M1 8a.5.5 0 0 1 .5-.5h11.793l-3.147-3.146a.5.5 0 0 1 .708-.708l4 4a.5.5 0 0 1 0 .708l-4 4a.5.5 0 0 1-.708-.708L13.293 8.5H1.5A.5.5 0 0 1 1 8z"/>
+          </svg>
+        </div>
+      </a>
+
+    </div>
+  </main>
+
+  <footer>
+    Prepared for NYC Dev Days 2026 · GitHub
+  </footer>
+</body>
+</html>

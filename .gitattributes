@@ -1,0 +1,3 @@
+# Mark compiled agentic workflow lock files as linguist-generated
+# so they don't inflate language statistics or clutter diffs.
+.github/workflows/*.lock.yml linguist-generated=true merge=ours

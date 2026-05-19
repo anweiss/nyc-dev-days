@@ -1,0 +1,12 @@
+{
+  "name": "copilot-runbook-extension",
+  "version": "1.0.0",
+  "description": "A Copilot Extension that answers runbook questions — demo for NYC Dev Days 2026",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "dependencies": {
+    "@copilot-extensions/preview-sdk": "^5.0.0"
+  }
+}

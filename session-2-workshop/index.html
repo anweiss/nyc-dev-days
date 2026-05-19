@@ -1,0 +1,1297 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Session 2 — The Agentic Developer Loop</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #0d1117;
+      --surface: #161b22;
+      --surface2: #1c2128;
+      --border: #30363d;
+      --text: #e6edf3;
+      --muted: #8b949e;
+      --blue: #58a6ff;
+      --blue-dim: #1f6feb;
+      --green: #3fb950;
+      --purple: #bc8cff;
+      --orange: #f0883e;
+      --red: #ff7b72;
+    }
+
+    html, body {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+    }
+
+    #deck {
+      width: 100vw;
+      height: 100vh;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .slide {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      padding: 60px 80px;
+      opacity: 0;
+      pointer-events: none;
+      transform: translateX(60px);
+      transition: opacity 0.4s ease, transform 0.4s ease;
+    }
+
+    .slide.active {
+      opacity: 1;
+      pointer-events: all;
+      transform: translateX(0);
+    }
+
+    .slide.prev {
+      opacity: 0;
+      transform: translateX(-60px);
+    }
+
+    /* Layouts */
+    .slide.layout-title    { background: radial-gradient(ellipse at 60% 40%, #1e1a35 0%, var(--bg) 65%); }
+    .slide.layout-section  { background: radial-gradient(ellipse at 30% 60%, #1a1f2e 0%, var(--bg) 65%); }
+    .slide.layout-demo     { background: radial-gradient(ellipse at 70% 30%, #1a2420 0%, var(--bg) 65%); }
+    .slide.layout-content  { background: var(--bg); }
+    .slide.layout-compare  { background: radial-gradient(ellipse at 50% 50%, #1a1f28 0%, var(--bg) 65%); }
+    .slide.layout-closing  { background: radial-gradient(ellipse at 50% 50%, #1e1a35 0%, var(--bg) 65%); }
+
+    /* Title slide */
+    .title-wrap { text-align: center; max-width: 900px; }
+    .session-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(188, 140, 255, 0.12);
+      border: 1px solid rgba(188, 140, 255, 0.3);
+      color: var(--purple);
+      font-size: 0.75rem;
+      font-weight: 700;
+      padding: 5px 14px;
+      border-radius: 20px;
+      letter-spacing: 0.07em;
+      text-transform: uppercase;
+      margin-bottom: 28px;
+    }
+    .session-badge .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--purple); }
+
+    .title-wrap h1 {
+      font-size: clamp(2.2rem, 4.5vw, 3.8rem);
+      font-weight: 800;
+      line-height: 1.2;
+      letter-spacing: -0.02em;
+      background: linear-gradient(135deg, #e6edf3 20%, var(--purple) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      padding-bottom: 0.1em;
+      margin-bottom: 20px;
+    }
+
+    .title-wrap .subtitle {
+      font-size: clamp(1rem, 2vw, 1.35rem);
+      color: var(--muted);
+      font-style: italic;
+      margin-bottom: 36px;
+      line-height: 1.5;
+    }
+
+    .title-meta {
+      display: flex;
+      justify-content: center;
+      gap: 28px;
+      flex-wrap: wrap;
+    }
+
+    .meta-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.9rem;
+      color: var(--muted);
+    }
+    .meta-item svg { color: var(--purple); }
+
+    /* Section slide */
+    .section-wrap { text-align: center; max-width: 800px; }
+    .section-num {
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: var(--purple);
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      margin-bottom: 16px;
+    }
+    .section-wrap h2 {
+      font-size: clamp(2rem, 4vw, 3.2rem);
+      font-weight: 800;
+      line-height: 1.2;
+      letter-spacing: -0.02em;
+      margin-bottom: 16px;
+    }
+
+    .section-wrap p {
+      color: var(--muted);
+      font-size: 1.05rem;
+      line-height: 1.7;
+      max-width: 650px;
+      margin: 0 auto;
+    }
+
+    /* Demo slide */
+    .demo-wrap {
+      width: 100%;
+      max-width: 1000px;
+      display: grid;
+      grid-template-columns: 1fr 1.5fr;
+      gap: 48px;
+      align-items: start;
+    }
+
+    .demo-left .demo-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(63, 185, 80, 0.12);
+      border: 1px solid rgba(63, 185, 80, 0.3);
+      color: var(--green);
+      font-size: 0.7rem;
+      font-weight: 700;
+      padding: 4px 12px;
+      border-radius: 20px;
+      letter-spacing: 0.07em;
+      text-transform: uppercase;
+      margin-bottom: 16px;
+    }
+
+    .demo-left h2 {
+      font-size: clamp(1.8rem, 3vw, 2.6rem);
+      font-weight: 800;
+      line-height: 1.2;
+      letter-spacing: -0.02em;
+      margin-bottom: 10px;
+    }
+
+    .demo-left p {
+      color: var(--muted);
+      font-size: 0.95rem;
+      line-height: 1.65;
+    }
+
+    .demo-right {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 24px 28px;
+    }
+
+    /* Content slide */
+    .content-wrap { width: 100%; max-width: 900px; }
+    .content-wrap .slide-label {
+      font-size: 0.7rem;
+      font-weight: 700;
+      color: var(--purple);
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      margin-bottom: 12px;
+    }
+    .content-wrap h2 {
+      font-size: clamp(1.6rem, 2.8vw, 2.4rem);
+      font-weight: 800;
+      line-height: 1.2;
+      letter-spacing: -0.02em;
+      margin-bottom: 28px;
+    }
+
+    /* Compare layout */
+    .compare-wrap {
+      width: 100%;
+      max-width: 1000px;
+    }
+    .compare-wrap .slide-label {
+      font-size: 0.7rem;
+      font-weight: 700;
+      color: var(--purple);
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      margin-bottom: 12px;
+    }
+    .compare-wrap h2 {
+      font-size: clamp(1.6rem, 2.8vw, 2.2rem);
+      font-weight: 800;
+      margin-bottom: 28px;
+      letter-spacing: -0.02em;
+    }
+    .compare-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+    }
+    .compare-col {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 24px;
+    }
+    .compare-col h3 {
+      font-size: 0.85rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+      margin-bottom: 16px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid var(--border);
+    }
+    .compare-col h3.assistive { color: var(--blue); }
+    .compare-col h3.agentic   { color: var(--purple); }
+
+    /* Lists */
+    ul.points {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    ul.points li {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      font-size: clamp(0.85rem, 1.4vw, 1.05rem);
+      line-height: 1.6;
+      color: var(--text);
+    }
+
+    ul.points li .bullet {
+      flex-shrink: 0;
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--purple);
+      margin-top: 9px;
+    }
+
+    ul.points li .bullet.blue   { background: var(--blue); }
+    ul.points li .bullet.green  { background: var(--green); }
+    ul.points li .bullet.orange { background: var(--orange); }
+
+    /* Code block */
+    .code-block {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 16px 20px;
+      font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+      font-size: 0.85rem;
+      color: #e6edf3;
+      margin: 8px 0;
+    }
+
+    .code-block .comment { color: var(--muted); }
+    .code-block .key { color: var(--purple); }
+    .code-block .val { color: var(--orange); }
+    .code-block .str { color: var(--green); }
+
+    /* Stat cards */
+    .stat-row {
+      display: flex;
+      gap: 20px;
+      flex-wrap: wrap;
+      margin-top: 8px;
+    }
+
+    .stat-card {
+      flex: 1;
+      min-width: 140px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 18px 20px;
+      text-align: center;
+    }
+
+    .stat-card .num {
+      font-size: 2.2rem;
+      font-weight: 800;
+      color: var(--purple);
+      line-height: 1;
+      margin-bottom: 6px;
+    }
+
+    .stat-card .num.blue  { color: var(--blue); }
+    .stat-card .num.green { color: var(--green); }
+
+    .stat-card .label {
+      font-size: 0.8rem;
+      color: var(--muted);
+      line-height: 1.4;
+    }
+
+    /* Agentic loop diagram */
+    .loop-diagram {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0;
+      width: 100%;
+      max-width: 900px;
+      margin-top: 20px;
+    }
+
+    .loop-step {
+      flex: 1;
+      text-align: center;
+      padding: 16px 10px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      position: relative;
+    }
+
+    .loop-step:first-child { border-radius: 10px 0 0 10px; }
+    .loop-step:last-child  { border-radius: 0 10px 10px 0; }
+
+    .loop-step:not(:last-child)::after {
+      content: '→';
+      position: absolute;
+      right: -10px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--purple);
+      font-size: 1rem;
+      z-index: 1;
+    }
+
+    .loop-step .phase { font-size: 0.72rem; font-weight: 700; color: var(--purple); }
+    .loop-step .detail { font-size: 0.7rem; color: var(--muted); margin-top: 3px; }
+
+    .loop-step { cursor: pointer; transition: background 0.2s, border-color 0.2s; }
+    .loop-step:hover { background: rgba(137, 87, 229, 0.08); }
+    .loop-step.active { background: rgba(137, 87, 229, 0.12); border-color: var(--purple); z-index: 2; }
+
+    .loop-detail {
+      margin-top: 20px;
+      max-width: 900px;
+      width: 100%;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 20px 24px;
+      min-height: 60px;
+      transition: opacity 0.25s ease;
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+    }
+
+    .loop-detail.is-open {
+      opacity: 1;
+      visibility: visible;
+      pointer-events: auto;
+    }
+
+    .loop-detail .detail-title {
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: var(--purple);
+      margin-bottom: 6px;
+    }
+
+    .loop-detail .detail-body {
+      font-size: 0.82rem;
+      color: var(--muted);
+      line-height: 1.6;
+    }
+
+    .loop-detail .detail-body strong { color: var(--text); }
+
+    /* MCP card */
+    .mcp-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 14px;
+      width: 100%;
+      margin-top: 16px;
+    }
+
+    .mcp-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 16px;
+    }
+
+    .mcp-card .tag {
+      font-size: 0.68rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--purple);
+      margin-bottom: 6px;
+    }
+
+    .mcp-card .name {
+      font-size: 0.9rem;
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+
+    .mcp-card .desc {
+      font-size: 0.78rem;
+      color: var(--muted);
+      line-height: 1.4;
+    }
+
+    /* Governance table */
+    .gov-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.88rem;
+      margin-top: 16px;
+    }
+
+    .gov-table th {
+      text-align: left;
+      font-size: 0.7rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+      color: var(--muted);
+      padding: 8px 12px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .gov-table td {
+      padding: 10px 12px;
+      border-bottom: 1px solid rgba(48, 54, 61, 0.5);
+      color: var(--text);
+      vertical-align: top;
+    }
+
+    .gov-table td:first-child { font-weight: 600; color: var(--purple); white-space: nowrap; }
+
+    /* Closing slide */
+    .closing-wrap { text-align: center; max-width: 800px; }
+
+    .closing-wrap .icon-ring {
+      width: 80px; height: 80px;
+      border-radius: 50%;
+      background: rgba(188, 140, 255, 0.1);
+      border: 1px solid rgba(188, 140, 255, 0.3);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2rem;
+      margin: 0 auto 28px;
+    }
+
+    .closing-wrap h2 {
+      font-size: clamp(1.8rem, 3.5vw, 3rem);
+      font-weight: 800;
+      line-height: 1.2;
+      margin-bottom: 16px;
+    }
+
+    .closing-wrap p {
+      color: var(--muted);
+      font-size: 1.05rem;
+      line-height: 1.7;
+      margin-bottom: 28px;
+    }
+
+    .cta-items {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      text-align: left;
+      max-width: 560px;
+      margin: 0 auto;
+    }
+
+    .cta-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 14px 18px;
+      font-size: 0.92rem;
+    }
+
+    .cta-item .num {
+      flex-shrink: 0;
+      width: 24px; height: 24px;
+      background: #2d1d5e;
+      color: var(--purple);
+      font-weight: 700;
+      font-size: 0.75rem;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+    }
+
+    /* Progress + Nav */
+    #progress {
+      position: fixed;
+      top: 0; left: 0;
+      height: 3px;
+      background: var(--purple);
+      transition: width 0.4s ease;
+      z-index: 100;
+    }
+
+    #nav {
+      position: fixed;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      background: rgba(22, 27, 34, 0.9);
+      border: 1px solid var(--border);
+      border-radius: 40px;
+      padding: 10px 20px;
+      backdrop-filter: blur(8px);
+      z-index: 100;
+    }
+
+    #nav button {
+      background: none;
+      border: none;
+      color: var(--muted);
+      cursor: pointer;
+      padding: 6px 10px;
+      border-radius: 6px;
+      font-size: 0.9rem;
+      transition: color 0.15s, background 0.15s;
+    }
+
+    #nav button:hover { color: var(--text); background: var(--surface2); }
+    #nav button:disabled { opacity: 0.3; cursor: default; }
+
+    #nav .counter {
+      font-size: 0.8rem;
+      color: var(--muted);
+      min-width: 60px;
+      text-align: center;
+    }
+
+    #home-link {
+      position: fixed;
+      top: 16px;
+      left: 20px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--muted);
+      text-decoration: none;
+      font-size: 0.8rem;
+      padding: 6px 12px;
+      border-radius: 20px;
+      transition: color 0.15s, background 0.15s;
+      z-index: 100;
+    }
+
+    #home-link:hover { color: var(--text); background: rgba(22, 27, 34, 0.8); }
+
+    #slide-num {
+      position: fixed;
+      top: 16px;
+      right: 20px;
+      font-size: 0.75rem;
+      color: var(--muted);
+      background: rgba(22, 27, 34, 0.8);
+      border: 1px solid var(--border);
+      padding: 5px 12px;
+      border-radius: 20px;
+      z-index: 100;
+    }
+
+    #key-hint {
+      position: fixed;
+      bottom: 80px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 0.72rem;
+      color: var(--muted);
+      opacity: 0.6;
+    }
+
+    #notes-btn {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      background: rgba(22, 27, 34, 0.9);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--muted);
+      font-size: 0.75rem;
+      padding: 8px 14px;
+      cursor: pointer;
+      transition: color 0.15s;
+      z-index: 102;
+    }
+    #notes-btn:hover { color: var(--text); }
+
+    #notes-panel {
+      position: fixed;
+      bottom: 0; left: 0; right: 0;
+      max-height: 0;
+      overflow: hidden;
+      background: rgba(13, 17, 23, 0.97);
+      border-top: 1px solid var(--border);
+      transition: max-height 0.3s ease;
+      z-index: 101;
+    }
+
+    #notes-panel.open { max-height: 220px; }
+
+    #notes-content {
+      padding: 16px 180px 16px 32px;
+      font-size: 0.88rem;
+      color: var(--muted);
+      line-height: 1.6;
+      overflow-y: auto;
+      max-height: 220px;
+    }
+
+    #notes-content strong { color: var(--text); }
+
+    @media (max-width: 768px) {
+      .slide { padding: 40px 28px; }
+      .demo-wrap { grid-template-columns: 1fr; gap: 24px; }
+      .compare-grid { grid-template-columns: 1fr; }
+      .mcp-grid { grid-template-columns: 1fr 1fr; }
+      #notes-content { padding-right: 16px; }
+    }
+  </style>
+</head>
+<body>
+
+<div id="progress"></div>
+<a id="home-link" href="../index.html">
+  <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor">
+    <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38
+      0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13
+      -.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66
+      .07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15
+      -.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0
+      1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82
+      1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01
+      1.93-.01 2.2 0 .21.15.46.55.38A8.012 8.012 0 0 0 16 8c0-4.42-3.58-8-8-8z"/>
+  </svg>
+  All Sessions
+</a>
+<div id="slide-num"></div>
+
+<div id="deck">
+
+  <!-- ── SLIDE 1 · Title ── -->
+  <div class="slide layout-title active" data-notes="Welcome to Session 2 — The Agentic Developer Loop. Speaker: Andrew Weiss. This is the deep-dive workshop: we'll go hands-on with building agents, connecting them to enterprise systems via MCP, and governing all of it at scale.">
+    <div class="title-wrap">
+      <div class="session-badge">Session 2 · Workshop</div>
+      <h1>The Agentic Developer Loop</h1>
+      <p class="subtitle">From assistive AI to fully autonomous agents — building, customizing, connecting, and governing GitHub Copilot at enterprise scale</p>
+      <div class="title-meta">
+        <div class="meta-item">
+          <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor"><path d="M5 3.25a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0zm0 2.122a2.25 2.25 0 1 0-1.5 0v.878A2.25 2.25 0 0 0 5.75 8.5h1.5v2.128a2.251 2.251 0 1 0 1.5 0V8.5h1.5a2.25 2.25 0 0 0 2.25-2.25v-.878a2.25 2.25 0 1 0-1.5 0v.878a.75.75 0 0 1-.75.75h-4.5A.75.75 0 0 1 5 6.25v-.878zm3.75 7.378a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0zm3-8.75a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0z"/></svg>
+          NYC Dev Days 2026
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── SLIDE 2 · The Shift ── -->
+  <div class="slide layout-section" data-notes="Start with a concrete statement: agentic AI is not a roadmap item, it is live on GitHub today. Define the shift clearly: assistive AI says 'here's a suggestion,' agentic AI says 'I looked at your repo, made a plan, wrote the code, and here's a PR.' The human's job changes from typist to reviewer.">
+    <div class="section-wrap">
+      <div class="section-num">Opening</div>
+      <h2>The Shift Has Already Happened</h2>
+      <p>Agentic AI is not a roadmap item. It is <strong style="color:var(--purple)">live on GitHub today</strong>. The teams that understand how to use it are already shipping faster.</p>
+    </div>
+  </div>
+
+  <!-- ── SLIDE 3 · Assistive vs Agentic Definition ── -->
+  <div class="slide layout-content" data-notes="Define both clearly. Assistive = responds when you ask. Agentic = acts, reasons, plans, and iterates without hands-on-keyboard at every step. The key word is autonomous. Your judgment is the scarce resource. Agentic AI frees it up.">
+    <div class="content-wrap">
+      <div class="slide-label">The Fundamental Shift</div>
+      <h2>Assistive vs. Agentic AI</h2>
+      <ul class="points">
+        <li><span class="bullet blue"></span><span><strong style="color:var(--blue)">Assistive AI</strong> — responds when you ask. Copilot completions, inline chat, explain commands. Requires your full attention at every step.</span></li>
+        <li><span class="bullet"></span><span><strong style="color:var(--purple)">Agentic AI</strong> — acts, reasons, plans, and iterates <em>without</em> requiring your hands on the keyboard for every step.</span></li>
+        <li><span class="bullet green"></span><span>The mental model shift: you're not <strong>"prompting"</strong> anymore — you're <strong>"delegating."</strong></span></li>
+        <li><span class="bullet orange"></span><span>"Your <strong>judgment</strong> is the scarce resource. Agentic AI frees it up."</span></li>
+        <li><span class="bullet"></span><span>GitHub's bet: agents that are <strong>repo-native</strong>, governed by your org's policies, and <strong>auditable at every step</strong>.</span></li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- ── SLIDE 4 · Demo 1: Assistive vs Agentic ── -->
+  <div class="slide layout-compare" data-notes="Side-by-side comparison. The same task completed two ways. Assistive requires a human in the loop at every step. Agentic requires a human at the start (define the task) and end (review the output). Walk through what makes a task 'agent-ready.'">
+    <div class="compare-wrap">
+      <div class="slide-label">Demo 1</div>
+      <h2>Side-by-Side: Assistive vs. Agentic</h2>
+      <div class="compare-grid">
+        <div class="compare-col">
+          <h3 class="assistive">🤝 Assistive Mode</h3>
+          <ul class="points">
+            <li><span class="bullet blue"></span><span>You write code, Copilot suggests completions</span></li>
+            <li><span class="bullet blue"></span><span>Inline chat: describe → see diff → accept/reject</span></li>
+            <li><span class="bullet blue"></span><span>Human in the loop at <strong>every step</strong></span></li>
+            <li><span class="bullet blue"></span><span>Great for in-the-flow creative coding</span></li>
+          </ul>
+        </div>
+        <div class="compare-col">
+          <h3 class="agentic">🤖 Agentic Mode</h3>
+          <ul class="points">
+            <li><span class="bullet"></span><span>You write a clear issue, <strong>assign it to Copilot</strong>, go do something else</span></li>
+            <li><span class="bullet"></span><span>Agent: observes → plans → acts → verifies → repeats</span></li>
+            <li><span class="bullet"></span><span>Human at the <strong>start</strong> (define) and <strong>end</strong> (review)</span></li>
+            <li><span class="bullet"></span><span>Returns a PR for you to review</span></li>
+          </ul>
+        </div>
+      </div>
+      <div style="margin-top:20px;padding:16px 20px;background:var(--surface);border:1px solid var(--border);border-radius:10px;">
+        <p style="font-size:0.85rem;color:var(--muted)"><strong style="color:var(--text)">"Agent-ready" tasks:</strong> bounded scope · measurable success · established tech stack · no ambiguous architectural decisions required</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── SLIDE 5 · Agent Mode vs Coding Agent vs Agentic Workflows ── -->
+  <div class="slide layout-content" data-notes="Clarify the three agentic surfaces. Agent Mode runs in VS Code — it's interactive, multi-step, edits files and runs terminal commands but YOU are still in the loop in your IDE. The Coding Agent (Cloud Agent) is fully autonomous — it runs in a cloud sandbox, triggered by assigning an issue to Copilot, and returns a PR. Agentic Workflows are GitHub Actions powered by AI — event-driven automations that use Copilot to respond to repo events like issue closures or PR reviews. Key takeaway: these are complementary, not competing.">
+    <div class="content-wrap">
+      <div class="slide-label">Understanding Agentic Surfaces</div>
+      <h2>Agent Mode vs. Coding Agent vs. Agentic Workflows</h2>
+      <div class="mcp-grid" style="margin-bottom:20px">
+        <div class="mcp-card">
+          <div class="tag" style="background:rgba(88,166,255,0.15);color:var(--blue)">IDE · Interactive</div>
+          <div class="name" style="color:var(--blue)">Copilot Agent Mode</div>
+          <div class="desc">Runs in <strong>VS Code / JetBrains</strong>. Multi-step, edits files, runs terminal commands. You stay in the loop in your IDE — iterative and conversational.</div>
+        </div>
+        <div class="mcp-card">
+          <div class="tag" style="background:rgba(188,140,255,0.15);color:var(--purple)">Cloud · Autonomous</div>
+          <div class="name" style="color:var(--purple)">Copilot Coding Agent</div>
+          <div class="desc">Runs in a <strong>cloud sandbox</strong>. Assign an issue to Copilot → it plans, codes, tests, and opens a <strong>PR</strong>. Fully autonomous — no IDE required.</div>
+        </div>
+        <div class="mcp-card">
+          <div class="tag" style="background:rgba(63,185,80,0.15);color:var(--green)">CI/CD · Event-Driven</div>
+          <div class="name" style="color:var(--green)">Agentic Workflows</div>
+          <div class="desc">GitHub Actions powered by AI. Triggered by <strong>repo events</strong> (issue closed, PR opened). Automated cascading actions — no human trigger needed.</div>
+        </div>
+      </div>
+      <div style="padding:16px 20px;background:var(--surface);border:1px solid var(--border);border-radius:10px;">
+        <p style="font-size:0.85rem;color:var(--muted)"><strong style="color:var(--text)">Key insight:</strong> These are <strong style="color:var(--purple)">complementary surfaces</strong>, not competing tools. Agent Mode for interactive exploration, Coding Agent for delegated tasks, Agentic Workflows for automated pipelines.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── SLIDE 6 · Word Cloud — Agent / Agentic ── -->
+  <div class="slide layout-content" data-notes="A fun visual interlude — a word cloud of 'Agent' and 'Agentic' in random fonts, sizes, weights, and colors. Refreshes every time the slide is visited." id="word-cloud-slide" aria-label="Decorative word cloud of Agent and Agentic terms">
+    <div id="word-cloud" aria-hidden="true" style="position:absolute;inset:0;overflow:hidden;display:flex;flex-wrap:wrap;align-content:center;justify-content:center;gap:0;padding:40px;"></div>
+  </div>
+
+  <!-- ── SLIDE 7 · Custom Agents ── -->
+  <div class="slide layout-content" data-notes="Custom agents extend Copilot with domain-specific behavior. They are defined as YAML or Markdown files that give the agent a name, description, instructions, and optionally tools. You can scope them to a single repo (.github/agents), share across an org, or deploy enterprise-wide. Think of them as specialized personas: a security reviewer, a migration assistant, a docs writer — each with its own context and constraints.">
+    <div class="content-wrap">
+      <div class="slide-label">Extending Copilot</div>
+      <h2>Custom Agents</h2>
+      <ul class="points" style="margin-bottom:24px">
+        <li><span class="bullet"></span><span><strong>What they are:</strong> Specialized Copilot personas with custom instructions, tools, and domain knowledge — a security reviewer, a migration assistant, a docs writer</span></li>
+        <li><span class="bullet"></span><span>Defined as files that specify a <strong>name</strong>, <strong>description</strong>, <strong>instructions</strong>, and optionally <strong>MCP tools</strong></span></li>
+        <li><span class="bullet"></span><span>Invoked by <code style="color:var(--orange)">@agent-name</code> in Copilot Chat — just like mentioning a teammate</span></li>
+      </ul>
+      <table class="gov-table">
+        <thead>
+          <tr>
+            <th>Scope</th>
+            <th>Where it lives</th>
+            <th>Who can use it</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Repository</td>
+            <td><code style="color:var(--orange)">.github/agents/</code> directory</td>
+            <td>Anyone working in that repo</td>
+          </tr>
+          <tr>
+            <td>Organization</td>
+            <td>Org-level Copilot settings or shared config repo</td>
+            <td>All members of the org</td>
+          </tr>
+          <tr>
+            <td>Enterprise</td>
+            <td>Enterprise-level Copilot configuration</td>
+            <td>All orgs and members across the enterprise</td>
+          </tr>
+        </tbody>
+      </table>
+      <div style="margin-top:20px;padding:16px 20px;background:var(--surface);border:1px solid var(--border);border-radius:10px;">
+        <p style="font-size:0.85rem;color:var(--muted)"><strong style="color:var(--text)">Pro tip:</strong> Start with a repo-level agent for your team's most common task. Promote to org-level once it's proven. Enterprise agents are ideal for cross-cutting concerns like <strong style="color:var(--purple)">security review</strong> or <strong style="color:var(--purple)">compliance checks</strong>.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── SLIDE 7 · Agentic Workflows ── -->
+  <div class="slide layout-demo" data-notes="Demo 2 has three escalating parts. Part A: ad-hoc Copilot Chat — ask which issues depend on CART-003. Part B: the structured prompt template in .github/prompts/inspect-delay.prompt.md. Part C: close Issue #35 as 'not planned' and watch the sprint-impact-analysis workflow cascade 9 notifications automatically.">
+    <div class="demo-wrap">
+      <div class="demo-left">
+        <div class="demo-tag">Demo 2</div>
+        <h2>The Sprint Impact Cascade</h2>
+        <p>CART-003 is cancelled. Three escalating ways to handle it — from ad-hoc chat to fully automated cascade.</p>
+      </div>
+      <div class="demo-right">
+        <ul class="points" style="margin-bottom:16px">
+          <li><span class="bullet green"></span><span><strong>Part A — Ad-hoc:</strong> Ask Copilot Chat "which issues depend on #3?" — it reads issue bodies, traces <code style="color:var(--muted)">## Depends On</code> sections</span></li>
+          <li><span class="bullet green"></span><span><strong>Part B — Template:</strong> <code style="color:var(--orange)">.github/prompts/inspect-delay.prompt.md</code> — fill in the blanks, always get the same 5-section report</span></li>
+          <li><span class="bullet green"></span><span><strong>Part C — Automated:</strong> Close #35 as "not planned" → <code style="color:var(--purple)">sprint-impact-analysis</code> workflow fires → 9 issues notified in ~60 seconds</span></li>
+        </ul>
+        <div class="code-block">
+          <div class="comment"># sprint-impact-analysis (gh-aw)</div>
+          <div><span class="key">on:</span></div>
+          <div>&nbsp;&nbsp;<span class="key">issues:</span></div>
+          <div>&nbsp;&nbsp;&nbsp;&nbsp;<span class="key">types:</span> <span class="val">[closed, demilestoned]</span></div>
+          <div><span class="comment"># Cascades to: #41, #43, #44, #45, #46, #47,</span></div>
+          <div><span class="comment">#             #17, #18, #19, #20 across 4 sprints</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── SLIDE 8 · Building & Customizing Coding Agents ── -->
+  <div class="slide layout-demo" data-notes="The most important file in your repo for agentic workflows: .github/copilot-instructions.md. The agent reads this before every task. Think of it as an always-up-to-date onboarding document that also happens to guide your AI agents. Show the session log as the audit trail.">
+    <div class="demo-wrap">
+      <div class="demo-left">
+        <div class="demo-tag">Demo 3</div>
+        <h2>Building &amp; Customizing Coding Agents</h2>
+        <p>Make the coding agent behave like a real member of your team using <code style="color:var(--purple)">.github/copilot-instructions.md</code> and well-structured issues.</p>
+      </div>
+      <div class="demo-right">
+        <div class="code-block" style="margin-bottom:16px">
+          <div class="comment"># .github/copilot-instructions.md (TechMart)</div>
+          <div><span class="str">## Stack</span></div>
+          <div>- Vanilla HTML/CSS/JS — <span class="val">no frameworks, no npm</span></div>
+          <div>- CSS custom properties for all theming values</div>
+          <div><span class="str">## Conventions</span></div>
+          <div>- STUB_INFO stubs must remain as stubs — do not implement</div>
+          <div>- Issue bodies must include a <span class="val">## Depends On</span> section</div>
+        </div>
+        <ul class="points">
+          <li><span class="bullet green"></span><span>Agent reads <code style="font-size:0.82em;color:var(--purple)">.github/copilot-instructions.md</code> before <em>every task</em></span></li>
+          <li><span class="bullet green"></span><span><strong>Session log</strong> = full audit trail: what it read, considered, and changed</span></li>
+          <li><span class="bullet green"></span><span>Structured issues with acceptance criteria → dramatically better PRs</span></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── SLIDE 9 · What Goes in copilot-instructions.md ── -->
+  <div class="slide layout-content" data-notes="Explain in detail what belongs in copilot-instructions.md. This is the team's contract with the agent. Everything a new developer would need to know in their first week. Real example: naming conventions, preferred libraries, testing patterns, folder structure, what NOT to do, how to write a test, how to handle errors.">
+    <div class="content-wrap">
+      <div class="slide-label">Customizing the Agent</div>
+      <h2>Your Team's Contract with the Agent</h2>
+      <ul class="points">
+        <li><span class="bullet"></span><span><strong>Naming conventions</strong> — file names, function names, variable naming patterns</span></li>
+        <li><span class="bullet"></span><span><strong>Preferred stack</strong> — "Vanilla HTML/CSS/JS only — no frameworks, no npm. CSS custom properties for theming."</span></li>
+        <li><span class="bullet"></span><span><strong>What NOT to do</strong> — "STUB_INFO features are not implemented; never replace stubs with real API calls."</span></li>
+        <li><span class="bullet"></span><span><strong>Issue format</strong> — "Every issue body must include a <code style="color:var(--orange)">## Depends On</code> section so the agentic workflow can trace the dependency graph."</span></li>
+        <li><span class="bullet"></span><span><strong>Demo exceptions</strong> — "Some files intentionally violate conventions for demo purposes. Don't refactor them."</span></li>
+        <li><span class="bullet"></span><span>Think of it as an <strong>always-up-to-date onboarding doc</strong> that also governs your AI agents</span></li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- ── SLIDE 10 · MCP Introduction ── -->
+  <div class="slide layout-section" data-notes="MCP is an open standard for connecting AI agents to external data and tools. Think of it as a USB-C port for AI: a common interface, one protocol, works with any compliant tool. MCP is not GitHub-proprietary — it's open, originally from Anthropic, now broadly adopted. This is important for enterprise teams worried about lock-in.">
+    <div class="section-wrap">
+      <div class="section-num">Demo 4</div>
+      <h2>Model Context Protocol (MCP)</h2>
+      <p>An open standard for connecting AI agents to external tools and data sources — think of it as the <strong style="color:var(--purple)">USB-C port for AI</strong>.</p>
+    </div>
+  </div>
+
+  <!-- ── SLIDE 11 · MCP Details ── -->
+  <div class="slide layout-content" data-notes="MCP servers expose 'tools' and 'resources' — tools are actions the agent can invoke, resources are data the agent can read. MCP is how you make Copilot enterprise-aware: instead of Copilot only knowing about your code, it can also know about Jira tickets, Datadog metrics, Confluence docs, your production database schema.">
+    <div class="content-wrap">
+      <div class="slide-label">Model Context Protocol</div>
+      <h2>Connecting Agents to Enterprise Systems</h2>
+      <ul class="points" style="margin-bottom:20px">
+        <li><span class="bullet"></span><span>MCP servers expose <strong>"tools"</strong> (actions: run query, create ticket) and <strong>"resources"</strong> (data: DB schema, API specs)</span></li>
+        <li><span class="bullet"></span><span>JSON-RPC based — any developer can build an MCP server in a few hours</span></li>
+        <li><span class="bullet"></span><span>Open protocol (broadly adopted) — your MCP servers work with any compliant AI client</span></li>
+      </ul>
+      <div class="mcp-grid">
+        <div class="mcp-card">
+          <div class="tag">Live Demo</div>
+          <div class="name">GitHub MCP</div>
+          <div class="desc">Read/create issues, PRs, releases from Copilot Chat</div>
+        </div>
+        <div class="mcp-card">
+          <div class="tag">Live Demo</div>
+          <div class="name">Postgres MCP</div>
+          <div class="desc">Ask Copilot "What's the users table schema?" — queries live</div>
+        </div>
+        <div class="mcp-card">
+          <div class="tag">Real World</div>
+          <div class="name">Jira MCP</div>
+          <div class="desc">Ticket context and creation from natural language</div>
+        </div>
+        <div class="mcp-card">
+          <div class="tag">Real World</div>
+          <div class="name">Datadog MCP</div>
+          <div class="desc">Observability data and alerts for AI-assisted debugging</div>
+        </div>
+        <div class="mcp-card">
+          <div class="tag">Real World</div>
+          <div class="name">Internal API MCP</div>
+          <div class="desc">Domain-specific data exposed to the AI</div>
+        </div>
+        <div class="mcp-card">
+          <div class="tag">Build Your Own</div>
+          <div class="name">Custom MCP Server</div>
+          <div class="desc">Any language, HTTP interface, standard JSON-RPC manifest</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── SLIDE 12 · Enterprise Governance ── -->
+  <div class="slide layout-demo" data-notes="GitHub Enterprise gives admins granular control over every Copilot feature. You don't have to choose between full AI capabilities and enterprise security — you get both. Walk through the four key control areas: feature toggles, model selection, IP protection, content exclusions.">
+    <div class="demo-wrap">
+      <div class="demo-left">
+        <div class="demo-tag">Demo 5</div>
+        <h2>Enterprise Governance</h2>
+        <p>Full AI power + full enterprise control. You don't have to choose between the two.</p>
+      </div>
+      <div class="demo-right">
+        <table class="gov-table">
+          <thead>
+            <tr>
+              <th>Control</th>
+              <th>What it does</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Feature toggles</td>
+              <td>Enable/disable coding agent, code review, Autofix per org or repo</td>
+            </tr>
+            <tr>
+              <td>Model selection</td>
+              <td>Pin orgs to specific models (GPT-4o, Claude) for compliance</td>
+            </tr>
+            <tr>
+              <td>IP protection</td>
+              <td>"Exclude from training" — org code never used to train foundation models</td>
+            </tr>
+            <tr>
+              <td>Content exclusions</td>
+              <td>Block Copilot from accessing secrets files or regulated data paths</td>
+            </tr>
+            <tr>
+              <td>Audit logs</td>
+              <td>Every Copilot code change is logged — who triggered it, what was accepted</td>
+            </tr>
+            <tr>
+              <td>Seat management</td>
+              <td>Granular access control, tier management, usage analytics</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── SLIDE 13 · The Agentic Developer Loop ── -->
+  <div class="slide layout-section" data-notes="Pull everything together with the loop diagram. The loop is designed so humans are involved at the points of maximum judgment: defining outcomes and reviewing results. Everything in between can be automated. The developer's role: problem definer, context architect, quality reviewer.">
+    <div class="content-wrap">
+      <div class="slide-label">Section 7</div>
+      <h2>The Agentic Developer Loop</h2>
+      <p style="color:var(--muted);margin-bottom:24px;font-size:0.95rem;">Humans at the points of maximum judgment. Everything in between, automated.</p>
+      <p style="color:var(--blue);margin-bottom:16px;font-size:0.8rem;font-weight:600;">👆 Click each step below to learn more</p>
+      <div class="loop-diagram">
+        <div class="loop-step" data-detail="define" role="button" tabindex="0" aria-controls="loop-detail" aria-expanded="false">
+          <div class="phase">Define</div>
+          <div class="detail">Issue / Natural Language</div>
+        </div>
+        <div class="loop-step" data-detail="plan" role="button" tabindex="0" aria-controls="loop-detail" aria-expanded="false">
+          <div class="phase">Plan</div>
+          <div class="detail">Agent reads context + instructions</div>
+        </div>
+        <div class="loop-step" data-detail="act" role="button" tabindex="0" aria-controls="loop-detail" aria-expanded="false">
+          <div class="phase">Act</div>
+          <div class="detail">Writes code + calls MCP tools</div>
+        </div>
+        <div class="loop-step" data-detail="review" role="button" tabindex="0" aria-controls="loop-detail" aria-expanded="false">
+          <div class="phase">Review</div>
+          <div class="detail">Human reviews PR + Copilot review</div>
+        </div>
+        <div class="loop-step" data-detail="ship" role="button" tabindex="0" aria-controls="loop-detail" aria-expanded="false">
+          <div class="phase">Ship</div>
+          <div class="detail">Merge → CI/CD → Production</div>
+        </div>
+      </div>
+      <div class="loop-detail" id="loop-detail" aria-hidden="true">
+        <div class="detail-title" id="loop-detail-title"></div>
+        <div class="detail-body" id="loop-detail-body"></div>
+      </div>
+      <ul class="points" style="margin-top:28px">
+        <li><span class="bullet"></span><span>This is not automation <em>replacing</em> developers — it's developers operating at a <strong>higher level of abstraction</strong>.</span></li>
+        <li><span class="bullet orange"></span><span>Developer's new role: <strong>problem definer · context architect · quality reviewer</strong></span></li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- ── SLIDE 14 · Getting Started ── -->
+  <div class="slide layout-content" data-notes="Practical advice for teams getting started. Three concrete steps. The teams that figure out how to work WITH agents — not just use AI as a fancier autocomplete — will have a structural advantage.">
+    <div class="content-wrap">
+      <div class="slide-label">Getting Started</div>
+      <h2>Your First Steps This Week</h2>
+      <ul class="points" style="margin-bottom:28px">
+        <li><span class="bullet green"></span><span><strong>Step 1:</strong> Identify one well-scoped issue per sprint that's "agent-ready" and assign it to the coding agent</span></li>
+        <li><span class="bullet green"></span><span><strong>Step 2:</strong> Write your <code style="color:var(--purple)">.github/copilot-instructions.md</code> this week — conventions, preferred libraries, testing patterns, what not to do</span></li>
+        <li><span class="bullet green"></span><span><strong>Step 3:</strong> Add one MCP server that connects Copilot to your most-used internal tool (Jira, Datadog, your DB)</span></li>
+        <li><span class="bullet"></span><span>"The teams that figure out how to work <em>with</em> agents will have a <strong>structural advantage</strong>. That starts today."</span></li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- ── SLIDE 15 · Workshop Discussion ── -->
+  <div class="slide layout-closing" data-notes="Prompt the room: 'What's the most repetitive engineering task in your team right now? If it's well-scoped, an agent could probably do it.' Common discussion topics: how to handle agent mistakes, what to put in copilot-instructions.md, MCP server ideas, governance concerns from security teams.">
+    <div class="closing-wrap">
+      <div class="icon-ring">💬</div>
+      <h2>Workshop Discussion</h2>
+      <p>"What's the most repetitive engineering task in your team right now?<br/>If it's well-scoped, an agent could probably do it."</p>
+      <div class="cta-items">
+        <div class="cta-item">
+          <div class="num">→</div>
+          <span>What would you put in your team's <code style="color:var(--purple)">copilot-instructions.md</code> today?</span>
+        </div>
+        <div class="cta-item">
+          <div class="num">→</div>
+          <span>Which internal tool would you build an MCP server for first?</span>
+        </div>
+        <div class="cta-item">
+          <div class="num">→</div>
+          <span><a href="https://docs.github.com/en/copilot" style="color:var(--purple);text-decoration:none">docs.github.com/en/copilot</a> — all materials in this repo</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div><!-- #deck -->
+
+<nav id="nav">
+  <button id="btn-prev" disabled aria-label="Previous slide">
+    <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path fill-rule="evenodd" d="M9.78 12.78a.75.75 0 0 1-1.06 0L4.47 8.53a.75.75 0 0 1 0-1.06l4.25-4.25a.75.75 0 0 1 1.06 1.06L6.06 8l3.72 3.72a.75.75 0 0 1 0 1.06z"/></svg>
+  </button>
+  <span class="counter" id="counter">1 / 16</span>
+  <button id="btn-next" aria-label="Next slide">
+    <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path fill-rule="evenodd" d="M6.22 3.22a.75.75 0 0 1 1.06 0l4.25 4.25a.75.75 0 0 1 0 1.06l-4.25 4.25a.75.75 0 0 1-1.06-1.06L9.94 8 6.22 4.28a.75.75 0 0 1 0-1.06z"/></svg>
+  </button>
+</nav>
+
+<div id="key-hint">← → arrow keys or click to navigate · N for notes</div>
+
+<button id="notes-btn">Speaker Notes (N)</button>
+<div id="notes-panel">
+  <div id="notes-content"></div>
+</div>
+
+<script>
+  const slides = Array.from(document.querySelectorAll('.slide'));
+  const total = slides.length;
+  let current = 0;
+  let notesOpen = false;
+
+  const progress = document.getElementById('progress');
+  const counter = document.getElementById('counter');
+  const slideNum = document.getElementById('slide-num');
+  const btnPrev = document.getElementById('btn-prev');
+  const btnNext = document.getElementById('btn-next');
+  const notesBtn = document.getElementById('notes-btn');
+  const notesPanel = document.getElementById('notes-panel');
+  const notesContent = document.getElementById('notes-content');
+
+  const slideHooks = [];
+  function goTo(idx) {
+    if (idx < 0 || idx >= total) return;
+    const outgoing = slides[current];
+    outgoing.classList.remove('active');
+    outgoing.classList.add('prev');
+    setTimeout(() => { outgoing.classList.remove('prev'); }, 400);
+    current = idx;
+    slides[current].classList.add('active');
+    update();
+    slideHooks.forEach(fn => fn(current, slides[current]));
+  }
+
+  function update() {
+    const pct = total > 1 ? (current / (total - 1)) * 100 : 100;
+    progress.style.width = pct + '%';
+    counter.textContent = (current + 1) + ' / ' + total;
+    slideNum.textContent = (current + 1) + ' / ' + total;
+    btnPrev.disabled = current === 0;
+    btnNext.disabled = current === total - 1;
+    notesContent.innerHTML = slides[current].dataset.notes || '<em>No notes for this slide.</em>';
+  }
+
+  btnPrev.addEventListener('click', () => goTo(current - 1));
+  btnNext.addEventListener('click', () => goTo(current + 1));
+
+  document.addEventListener('keydown', e => {
+    if (e.key === 'ArrowRight' || e.key === 'ArrowDown' || e.key === ' ') { e.preventDefault(); goTo(current + 1); }
+    if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') { e.preventDefault(); goTo(current - 1); }
+    if (e.key === 'n' || e.key === 'N') toggleNotes();
+  });
+
+  notesBtn.addEventListener('click', toggleNotes);
+
+  function toggleNotes() {
+    notesOpen = !notesOpen;
+    notesPanel.classList.toggle('open', notesOpen);
+    notesBtn.textContent = notesOpen ? 'Hide Notes (N)' : 'Speaker Notes (N)';
+  }
+
+  let touchStartX = 0;
+  document.addEventListener('touchstart', e => { touchStartX = e.touches[0].clientX; });
+  document.addEventListener('touchend', e => {
+    const dx = e.changedTouches[0].clientX - touchStartX;
+    if (Math.abs(dx) > 50) { dx < 0 ? goTo(current + 1) : goTo(current - 1); }
+  });
+
+  // Agentic Developer Loop interactive detail panel
+  const loopDetails = {
+    define: {
+      title: 'Define — Issue / Natural Language',
+      body: 'The loop starts with a <strong>human decision</strong>: what problem needs solving. Write a well-scoped GitHub Issue in natural language with clear acceptance criteria. The better the issue, the better the agent\'s output — think of yourself as a <strong>problem definer</strong> and <strong>context architect</strong>.'
+    },
+    plan: {
+      title: 'Plan — Agent Reads Context + Instructions',
+      body: 'The agent reads your <strong>.github/copilot-instructions.md</strong>, repository structure, related files, and the issue description to build a plan. Custom instructions let you encode your team\'s conventions, preferred libraries, and guardrails — so the agent works <em>your</em> way.'
+    },
+    act: {
+      title: 'Act — Writes Code + Calls MCP Tools',
+      body: 'The agent autonomously writes code, runs tests, and calls <strong>MCP servers</strong> to interact with external systems (databases, APIs, internal tools). It iterates in a loop — observe, plan, act, verify — until the task is complete, then opens a pull request.'
+    },
+    review: {
+      title: 'Review — Human Reviews PR + Copilot Review',
+      body: 'Humans re-enter the loop at the point of <strong>maximum judgment</strong>. <strong>Copilot Code Review</strong> provides automated feedback on bugs, security, and style, while the developer reviews for correctness, architecture, and business logic. This is where your expertise matters most.'
+    },
+    ship: {
+      title: 'Ship — Merge → CI/CD → Production',
+      body: 'Once approved, the PR merges and flows through your existing <strong>CI/CD pipeline</strong> — tests, security scans, staging, production. The same governance and deployment controls you already trust. The loop then resets: ship informs the next issue, and the cycle continues.'
+    }
+  };
+
+  const loopSteps = document.querySelectorAll('.loop-step[data-detail]');
+  const loopDetailEl = document.getElementById('loop-detail');
+  const loopDetailTitle = document.getElementById('loop-detail-title');
+  const loopDetailBody = document.getElementById('loop-detail-body');
+
+  const toggleLoopStep = step => {
+    const key = step.dataset.detail;
+    const info = loopDetails[key];
+    if (!info) return;
+
+    const wasActive = step.classList.contains('active');
+    loopSteps.forEach(s => {
+      s.classList.remove('active');
+      s.setAttribute('aria-expanded', 'false');
+    });
+
+    if (wasActive) {
+      loopDetailEl.classList.remove('is-open');
+      loopDetailEl.setAttribute('aria-hidden', 'true');
+    } else {
+      step.classList.add('active');
+      step.setAttribute('aria-expanded', 'true');
+      loopDetailTitle.textContent = info.title;
+      loopDetailBody.innerHTML = info.body;
+      loopDetailEl.classList.add('is-open');
+      loopDetailEl.setAttribute('aria-hidden', 'false');
+    }
+  };
+
+  loopSteps.forEach(step => {
+    step.addEventListener('click', () => {
+      toggleLoopStep(step);
+    });
+
+    step.addEventListener('keydown', e => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        e.stopPropagation();
+        toggleLoopStep(step);
+      }
+    });
+  });
+
+  // Show the first loop step ("Define") by default on load
+  if (loopSteps.length > 0) {
+    toggleLoopStep(loopSteps[0]);
+  }
+
+  // Word Cloud generator
+  const wordCloudEl = document.getElementById('word-cloud');
+  const wcSlide = document.getElementById('word-cloud-slide');
+  const wcFonts = [
+    'system-ui', 'Georgia', 'Courier New', 'Arial Black', 'Impact',
+    'Trebuchet MS', 'Verdana', 'Palatino', 'Lucida Console', 'Comic Sans MS'
+  ];
+  const wcColors = [
+    'var(--blue)', 'var(--green)', 'var(--purple)', 'var(--orange)',
+    'var(--red)', 'var(--text)', 'var(--muted)', 'var(--blue-dim)'
+  ];
+  const wcWeights = [300, 400, 500, 600, 700, 800, 900];
+  const wcWords = ['Agent', 'Agentic'];
+
+  function randomItem(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
+
+  function generateWordCloud() {
+    wordCloudEl.innerHTML = '';
+    const count = 100 + Math.floor(Math.random() * 60);
+    for (let i = 0; i < count; i++) {
+      const span = document.createElement('span');
+      const size = 0.6 + Math.random() * 3.4;
+      span.textContent = randomItem(wcWords);
+      span.style.cssText = [
+        'display:inline-block',
+        'font-family:' + randomItem(wcFonts),
+        'font-size:' + size + 'rem',
+        'font-weight:' + randomItem(wcWeights),
+        'color:' + randomItem(wcColors),
+        'padding:' + (2 + Math.random() * 6) + 'px ' + (4 + Math.random() * 10) + 'px',
+        'opacity:' + (0.6 + Math.random() * 0.4).toFixed(2),
+        'transform:rotate(' + (Math.random() * 10 - 5) + 'deg)',
+        'line-height:1.1',
+        'white-space:nowrap',
+        'user-select:none'
+      ].join(';');
+      wordCloudEl.appendChild(span);
+    }
+  }
+
+  // Regenerate word cloud every time the slide becomes active
+  slideHooks.push((idx, slide) => {
+    if (slide === wcSlide) generateWordCloud();
+  });
+
+  update();
+</script>
+</body>
+</html>

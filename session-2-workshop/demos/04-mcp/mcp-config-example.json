@@ -1,0 +1,57 @@
+{
+  "$schema": "https://json.schemastore.org/mcp-config.json",
+  "comment": "Example MCP server configuration for GitHub Copilot in VS Code. Place this file at .vscode/mcp.json in your workspace, or configure via VS Code user settings.",
+  "servers": {
+    "github": {
+      "comment": "GitHub MCP server — gives Copilot access to issues, PRs, repos, and more via the GitHub API",
+      "command": "npx",
+      "args": ["-y", "@github/mcp-server"],
+      "env": {
+        "GITHUB_TOKEN": "${env:GITHUB_TOKEN}"
+      }
+    },
+    "postgres": {
+      "comment": "PostgreSQL MCP server — gives Copilot read access to database schema and the ability to run queries",
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-postgres", "${env:DATABASE_URL}"],
+      "env": {
+        "DATABASE_URL": "${env:DATABASE_URL}"
+      }
+    },
+    "sqlite": {
+      "comment": "SQLite MCP server — useful for local development databases",
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-sqlite", "--db-path", "./dev.db"]
+    },
+    "filesystem": {
+      "comment": "Filesystem MCP server — gives Copilot access to files outside the workspace (use with care)",
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-filesystem", "/path/to/allowed/directory"]
+    },
+    "brave-search": {
+      "comment": "Brave Search MCP server — gives Copilot the ability to search the web",
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-brave-search"],
+      "env": {
+        "BRAVE_API_KEY": "${env:BRAVE_API_KEY}"
+      }
+    }
+  },
+  "notes": {
+    "authentication": "All MCP servers that call authenticated APIs require the relevant token set as an environment variable. Use a .env file (gitignored) or your shell profile.",
+    "github_token": "Generate a GitHub Personal Access Token at github.com/settings/tokens with 'repo' and 'issues' scopes, OR use: export GITHUB_TOKEN=$(gh auth token)",
+    "database_url": "Standard PostgreSQL connection string format: postgresql://user:password@host:port/database",
+    "security": "MCP servers run as local processes with the permissions of your user account. Only configure MCP servers you trust. Never commit secrets or tokens to this file — use environment variable references (${env:VAR_NAME}) instead.",
+    "documentation": "Full MCP specification: https://modelcontextprotocol.io | VS Code MCP docs: https://code.visualstudio.com/docs/copilot/chat/mcp-servers | GitHub MCP server: https://github.com/github/github-mcp-server",
+    "popular_mcp_servers": [
+      "@github/mcp-server — GitHub issues, PRs, repos, code search",
+      "@modelcontextprotocol/server-postgres — PostgreSQL schema and query execution",
+      "@modelcontextprotocol/server-sqlite — SQLite database access",
+      "@modelcontextprotocol/server-filesystem — Local filesystem access",
+      "@modelcontextprotocol/server-brave-search — Web search via Brave",
+      "@modelcontextprotocol/server-slack — Slack messages and channels",
+      "mcp-server-jira — Jira issues and projects (community)",
+      "mcp-server-datadog — Datadog metrics and logs (community)"
+    ]
+  }
+}

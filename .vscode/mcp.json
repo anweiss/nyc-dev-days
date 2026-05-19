@@ -1,0 +1,11 @@
+{
+  "servers": {
+    "techmart-runbook": {
+      "command": "node",
+      "args": [
+        "${workspaceFolder}/session-1-keynote/demos/05-sdk/mcp-server/index.js"
+      ],
+      "type": "stdio"
+    }
+  }
+}

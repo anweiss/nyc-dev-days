@@ -1,0 +1,172 @@
+name: "Reset Session 1 Demo"
+
+# Resets all Session 1 demo state in this repository.
+# Run this 30–60 minutes before going on stage.
+#
+# What it resets:
+#  - Closes open PRs labeled 'demo'
+#  - Deletes the demo/health-endpoint branch if it exists
+#  - Closes and re-creates the coding agent demo issue
+#  - Removes 'copilot-approved' label from open issues
+
+on:
+  workflow_dispatch:
+    inputs:
+      close_prs:
+        description: "Close all open PRs labeled 'demo'"
+        required: false
+        type: boolean
+        default: true
+      recreate_issue:
+        description: "Recreate the Coding Agent demo issue (Demo 2)"
+        required: false
+        type: boolean
+        default: true
+      reset_branch:
+        description: "Delete the demo/health-endpoint branch"
+        required: false
+        type: boolean
+        default: true
+      reset_labels:
+        description: "Remove 'copilot-approved' label from open issues"
+        required: false
+        type: boolean
+        default: true
+
+permissions:
+  contents: write
+  issues: write
+  pull-requests: write
+
+jobs:
+  reset-demo:
+    name: Reset Session 1 Demo Environment
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      REPO: ${{ github.repository }}
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      # ── Step 1: Close existing demo PRs ──
+      - name: Close open demo PRs
+        if: ${{ inputs.close_prs }}
+        run: |
+          echo "🔄 Closing open demo PRs..."
+          prs=$(gh pr list --repo "$REPO" --label "demo" --state open --json number --jq '.[].number')
+          if [ -z "$prs" ]; then
+            echo "  No open demo PRs found."
+          else
+            for pr in $prs; do
+              echo "  Closing PR #$pr"
+              gh pr close "$pr" --repo "$REPO" --delete-branch || true
+            done
+          fi
+
+      # ── Step 2: Reset the demo branch ──
+      - name: Delete demo/health-endpoint branch
+        if: ${{ inputs.reset_branch }}
+        run: |
+          echo "🔄 Checking for demo/health-endpoint branch..."
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git push origin --delete demo/health-endpoint 2>/dev/null && echo "  ✅ Branch deleted." || echo "  Branch not found — nothing to delete."
+
+      # ── Step 3: Remove 'copilot-approved' label from open issues ──
+      - name: Reset copilot-approved labels
+        if: ${{ inputs.reset_labels }}
+        run: |
+          echo "🔄 Removing 'copilot-approved' label from open issues..."
+          issues=$(gh issue list --repo "$REPO" --label "copilot-approved" --state open --json number --jq '.[].number')
+          if [ -z "$issues" ]; then
+            echo "  No issues with copilot-approved label found."
+          else
+            for issue in $issues; do
+              echo "  Removing label from issue #$issue"
+              gh issue edit "$issue" --repo "$REPO" --remove-label "copilot-approved" || true
+            done
+          fi
+
+      # ── Step 4: Close stale demo issues ──
+      - name: Close stale Session 1 demo issues
+        if: ${{ inputs.recreate_issue }}
+        run: |
+          echo "🔄 Closing stale Session 1 demo issues..."
+          issues=$(gh issue list --repo "$REPO" --label "demo,session-1" --state open --json number --jq '.[].number')
+          if [ -z "$issues" ]; then
+            echo "  No stale demo issues found."
+          else
+            for issue in $issues; do
+              echo "  Closing issue #$issue"
+              gh issue close "$issue" --repo "$REPO" || true
+            done
+          fi
+
+      # ── Step 5: Create the demo issue ──
+      - name: Create Coding Agent demo issue
+        if: ${{ inputs.recreate_issue }}
+        run: |
+          echo "🔄 Creating Session 1 coding agent demo issue..."
+          gh issue create \
+            --repo "$REPO" \
+            --title "feat: add /health endpoint with version and uptime info" \
+            --label "enhancement,demo,session-1" \
+            --body "## Description
+
+          Add a \`GET /health\` endpoint that returns the current health status of the DevDay Task API, including:
+
+          - Application version (from \`package.json\`)
+          - Server uptime in seconds
+          - Current timestamp
+          - Database connectivity status (\`\"ok\"\` or \`\"error\"\`)
+
+          ## Acceptance Criteria
+
+          - [ ] \`GET /health\` returns a \`200\` response with JSON body
+          - [ ] Response includes \`version\`, \`uptime\`, \`timestamp\`, and \`database\` fields
+          - [ ] If the database is unreachable, the endpoint still returns \`200\` but sets \`database: \"error\"\`
+          - [ ] Unit tests cover the happy path and the database-down scenario
+
+          ## Example Response
+
+          \`\`\`json
+          {
+            \"status\": \"healthy\",
+            \"version\": \"1.2.0\",
+            \"uptime\": 3612,
+            \"timestamp\": \"2026-05-10T14:30:00.000Z\",
+            \"database\": \"ok\"
+          }
+          \`\`\`
+
+          ## Notes
+
+          - The endpoint should be registered in \`server.js\`
+          - Implementation logic goes in \`src/routes/health.js\` (new file)
+          - Tests go in \`tests/health.test.js\` (new file)
+          - Follow the coding standards in \`.github/copilot-instructions.md\`"
+
+          echo "  ✅ Demo issue created."
+
+      # ── Summary ──
+      - name: Print summary
+        run: |
+          echo ""
+          echo "══════════════════════════════════════════════════"
+          echo "  ✅  Session 1 Demo Reset Complete"
+          echo "══════════════════════════════════════════════════"
+          echo ""
+          echo "  Repo:            ${{ github.repository }}"
+          echo "  PRs closed:      ${{ inputs.close_prs }}"
+          echo "  Branch deleted:  ${{ inputs.reset_branch }}"
+          echo "  Labels reset:    ${{ inputs.reset_labels }}"
+          echo "  Issue created:   ${{ inputs.recreate_issue }}"
+          echo ""
+          echo "  Next steps:"
+          echo "    1. Verify the coding agent demo issue is open"
+          echo "    2. Ensure 'copilot-approved' label exists in this repo"
+          echo "    3. Run through the pre-demo checklist in PRESENTER-GUIDE.md"
+          echo "    4. Pre-assign the coding agent issue to Copilot (save time on stage)"
+          echo ""

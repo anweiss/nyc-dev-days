@@ -1,0 +1,65 @@
+[
+  {
+    "id": "rollback-api",
+    "title": "Roll Back the API Service",
+    "keywords": ["rollback", "revert", "roll back", "previous version", "deploy"],
+    "steps": [
+      "Open the GitHub Actions tab for the `devday-task-api` repository",
+      "Find the last successful deployment workflow run",
+      "Click **Re-run all jobs** to redeploy the previous version",
+      "Monitor the deployment logs — wait for the health check to pass",
+      "Verify the rollback by hitting `GET /health` and confirming the previous version number",
+      "Post in #incidents Slack channel: 'API rolled back to v{version} — investigating root cause'"
+    ],
+    "lastUpdated": "2026-04-15",
+    "owner": "Platform Team"
+  },
+  {
+    "id": "p1-incident",
+    "title": "P1 Incident Escalation",
+    "keywords": ["p1", "incident", "escalation", "outage", "page", "on-call"],
+    "steps": [
+      "Confirm the severity: P1 = full service outage or data loss affecting >10% of users",
+      "Page the on-call engineer via PagerDuty (rotation: #platform-oncall)",
+      "Create an incident channel in Slack: #inc-YYYY-MM-DD-short-description",
+      "Assign roles: Incident Commander, Communications Lead, Technical Lead",
+      "Post initial status update within 15 minutes to #incidents and status page",
+      "Begin investigation — check dashboards at grafana.internal/api-overview",
+      "Post updates every 30 minutes until resolved",
+      "Schedule post-incident review within 48 hours"
+    ],
+    "lastUpdated": "2026-03-22",
+    "owner": "SRE Team"
+  },
+  {
+    "id": "add-new-endpoint",
+    "title": "Adding a New API Endpoint",
+    "keywords": ["new endpoint", "add route", "api", "create endpoint"],
+    "steps": [
+      "Create a new route file in `src/routes/<resource>.js`",
+      "Define the Express router with GET, POST, PUT, DELETE handlers",
+      "Use parameterized queries for all database operations",
+      "Add the router to `server.js` with `app.use('/api/<resource>', router)`",
+      "Write tests in `tests/<resource>.test.js` using supertest",
+      "Run `npm test` to verify all tests pass",
+      "Open a pull request and request Copilot code review"
+    ],
+    "lastUpdated": "2026-04-28",
+    "owner": "Backend Team"
+  },
+  {
+    "id": "database-migration",
+    "title": "Running a Database Migration",
+    "keywords": ["migration", "database", "schema", "alter table"],
+    "steps": [
+      "Create a migration file in `db/migrations/` with timestamp prefix",
+      "Write the UP and DOWN SQL statements",
+      "Test locally with `npm run migrate:up` and `npm run migrate:down`",
+      "Add the migration to the PR — CI will validate it against a test database",
+      "After merge, the deployment pipeline applies migrations automatically",
+      "Verify by checking the schema version in the health endpoint response"
+    ],
+    "lastUpdated": "2026-04-10",
+    "owner": "Backend Team"
+  }
+]

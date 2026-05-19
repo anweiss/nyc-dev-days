@@ -1,0 +1,10 @@
+{
+  "name": "techmart-runbook-mcp",
+  "version": "1.0.0",
+  "description": "TechMart runbook MCP server for GitHub Copilot",
+  "main": "index.js",
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "1.29.0",
+    "zod": "^3.22.0"
+  }
+}

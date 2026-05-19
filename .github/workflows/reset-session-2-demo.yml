@@ -1,0 +1,186 @@
+name: "Reset Session 2 Demo"
+
+# Resets all Session 2 demo state in this repository:
+# - Closes any open PRs labeled 'demo'
+# - Closes and re-creates the two pre-staged demo issues
+# - Removes 'copilot-approved' label from open issues (resets agentic triage demo)
+
+on:
+  workflow_dispatch:
+    inputs:
+      recreate_issues:
+        description: "Close and re-create both Session 2 demo issues"
+        required: false
+        type: boolean
+        default: true
+      close_prs:
+        description: "Close open PRs labeled 'demo'"
+        required: false
+        type: boolean
+        default: true
+      reset_labels:
+        description: "Remove 'copilot-approved' label from all open issues"
+        required: false
+        type: boolean
+        default: true
+
+permissions:
+  contents: read
+  issues: write
+  pull-requests: write
+
+jobs:
+  reset-session2:
+    name: Reset Session 2 Demo Environment
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      REPO: ${{ github.repository }}
+
+    steps:
+      # ── Step 1: Close open demo PRs ──
+      - name: Close open demo PRs
+        if: ${{ inputs.close_prs }}
+        run: |
+          echo "🔄 Closing open demo PRs..."
+          prs=$(gh pr list --repo "$REPO" --label "demo" --state open --json number --jq '.[].number')
+          if [ -z "$prs" ]; then
+            echo "  No open demo PRs found."
+          else
+            for pr in $prs; do
+              echo "  Closing PR #$pr"
+              gh pr close "$pr" --repo "$REPO" --delete-branch || true
+            done
+          fi
+
+      # ── Step 2: Remove 'copilot-approved' label from open issues ──
+      - name: Reset copilot-approved labels
+        if: ${{ inputs.reset_labels }}
+        run: |
+          echo "🔄 Removing 'copilot-approved' label from open issues..."
+          issues=$(gh issue list --repo "$REPO" --label "copilot-approved" --state open --json number --jq '.[].number')
+          if [ -z "$issues" ]; then
+            echo "  No issues with copilot-approved label found."
+          else
+            for issue in $issues; do
+              echo "  Removing label from issue #$issue"
+              gh issue edit "$issue" --repo "$REPO" --remove-label "copilot-approved" || true
+            done
+          fi
+
+      # ── Step 3: Close stale demo issues ──
+      - name: Close stale Session 2 demo issues
+        if: ${{ inputs.recreate_issues }}
+        run: |
+          echo "🔄 Closing stale Session 2 demo issues..."
+          issues=$(gh issue list --repo "$REPO" --label "demo,session-2" --state open --json number --jq '.[].number')
+          if [ -z "$issues" ]; then
+            echo "  No stale demo issues found."
+          else
+            for issue in $issues; do
+              echo "  Closing issue #$issue"
+              gh issue close "$issue" --repo "$REPO" || true
+            done
+          fi
+
+      # ── Step 4: Re-create demo issue 1 (Bug) ──
+      - name: Create Session 2 bug issue
+        if: ${{ inputs.recreate_issues }}
+        run: |
+          echo "🔄 Creating Session 2 bug issue..."
+          gh issue create \
+            --repo "$REPO" \
+            --title "fix: filterByMinPriority excludes tasks that exactly match the threshold" \
+            --label "bug,demo,session-2" \
+            --body "## Summary
+
+          When calling \`GET /tasks?minPriority=2\`, tasks with priority exactly \`2\` are not returned. Only tasks with priority \`3\` or higher appear.
+
+          ## Steps to Reproduce
+
+          \`\`\`bash
+          # Start the server
+          npm start
+
+          # Request tasks with minPriority=2
+          curl http://localhost:3000/tasks?minPriority=2
+          # Returns only priority-3 tasks — priority-2 tasks are missing
+          \`\`\`
+
+          ## Expected Behavior
+
+          Tasks with priority **greater than or equal to** \`minPriority\` should be returned. A task with priority 2 should appear when \`minPriority=2\`.
+
+          ## Root Cause
+
+          \`src/utils.js\` — \`filterByMinPriority\` uses \`>\` (strict greater-than) instead of \`>=\` (greater-than-or-equal):
+
+          \`\`\`js
+          // BUG: should be >= not >
+          return tasks.filter(task => task.priority > minPriority);
+          \`\`\`
+
+          ## Acceptance Criteria
+
+          - [ ] \`GET /tasks?minPriority=2\` returns tasks with priority 2 AND 3
+          - [ ] The failing test \`includes tasks that exactly match the threshold\` passes
+          - [ ] All other tests continue to pass"
+          echo "  ✅ Bug issue created."
+
+      # ── Step 5: Re-create demo issue 2 (Feature) ──
+      - name: Create Session 2 feature issue
+        if: ${{ inputs.recreate_issues }}
+        run: |
+          echo "🔄 Creating Session 2 feature issue..."
+          gh issue create \
+            --repo "$REPO" \
+            --title "feat: add due date support to tasks" \
+            --label "enhancement,demo,session-2" \
+            --body "## Summary
+
+          Tasks need a \`dueDate\` field (ISO 8601 string) so teams can track deadlines.
+
+          ## Acceptance Criteria
+
+          - [ ] \`POST /tasks\` accepts an optional \`dueDate\` field (ISO 8601 string)
+          - [ ] \`PUT /tasks/:id\` can update \`dueDate\`
+          - [ ] \`GET /tasks\` supports filtering by \`?overdue=true\` — returns tasks where \`dueDate\` is in the past and \`status\` is not \`done\`
+          - [ ] A new utility function \`getOverdueTasks(tasks)\` is added to \`src/utils.js\` with full test coverage
+          - [ ] All existing tests continue to pass
+
+          ## Example
+
+          \`\`\`bash
+          # Create a task with a due date in the past
+          curl -X POST http://localhost:3000/tasks \\
+            -H 'Content-Type: application/json' \\
+            -d '{\"title\": \"Overdue task\", \"priority\": 3, \"dueDate\": \"2026-01-01T00:00:00.000Z\"}'
+
+          # Get overdue tasks
+          curl http://localhost:3000/tasks?overdue=true
+          \`\`\`
+
+          ## Constraints
+
+          - No new npm dependencies
+          - Follow existing patterns in \`src/routes/tasks.js\` and \`src/utils.js\`
+          - Add tests for \`getOverdueTasks\` in \`tests/utils.test.js\`"
+          echo "  ✅ Feature issue created."
+
+      # ── Summary ──
+      - name: Print summary
+        run: |
+          echo ""
+          echo "══════════════════════════════════════════════════"
+          echo "  ✅  Session 2 Demo Reset Complete"
+          echo "══════════════════════════════════════════════════"
+          echo ""
+          echo "  PRs closed:       ${{ inputs.close_prs }}"
+          echo "  Labels reset:     ${{ inputs.reset_labels }}"
+          echo "  Issues recreated: ${{ inputs.recreate_issues }}"
+          echo ""
+          echo "  Next steps:"
+          echo "    1. Verify the two demo issues exist and are open"
+          echo "    2. Confirm the 'copilot-approved' label exists in the repo"
+          echo "    3. Run through the Session 2 pre-demo checklist"
+          echo ""

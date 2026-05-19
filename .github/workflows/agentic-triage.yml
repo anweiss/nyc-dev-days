@@ -1,0 +1,55 @@
+name: "Agentic Issue Triage"
+
+# Fires when any label is applied to an issue.
+# If the label is 'copilot-approved', automatically assigns the issue
+# to the GitHub Copilot coding agent and posts a confirmation comment.
+#
+# Used in Session 2 Demo 2: Agentic Workflows as a New Pipeline.
+# The demo shows how a single label application triggers the full agentic loop.
+
+on:
+  issues:
+    types: [labeled]
+
+permissions:
+  issues: write
+
+jobs:
+  assign-to-copilot:
+    name: Assign to Copilot coding agent
+    runs-on: ubuntu-latest
+    if: github.event.label.name == 'copilot-approved'
+
+    steps:
+      - name: Assign issue to Copilot
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const { owner, repo } = context.repo;
+            const issue_number = context.issue.number;
+
+            await github.rest.issues.addAssignees({
+              owner,
+              repo,
+              issue_number,
+              assignees: ['copilot'],
+            });
+
+            await github.rest.issues.createComment({
+              owner,
+              repo,
+              issue_number,
+              body: [
+                '🤖 **Assigned to GitHub Copilot coding agent**',
+                '',
+                'This issue has been triaged and approved for autonomous implementation.',
+                'The Copilot coding agent will:',
+                '1. Explore the repository to understand context',
+                '2. Implement the feature or fix described above',
+                '3. Open a pull request for review',
+                '',
+                'A session link will appear here once the agent starts working.',
+                '',
+                '> Triggered by the `copilot-approved` label via the **Agentic Issue Triage** workflow.',
+              ].join('\n'),
+            });

@@ -1,0 +1,1239 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Session 1 — A Day in the Life of a Developer with GitHub + AI</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #0d1117;
+      --surface: #161b22;
+      --surface2: #1c2128;
+      --border: #30363d;
+      --text: #e6edf3;
+      --muted: #8b949e;
+      --accent: #238636;
+      --blue: #58a6ff;
+      --blue-dim: #1f6feb;
+      --green: #3fb950;
+      --purple: #bc8cff;
+      --orange: #f0883e;
+      --red: #ff7b72;
+    }
+
+    html, body {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+    }
+
+    /* ─── Slide container ─── */
+    #deck {
+      width: 100vw;
+      height: 100vh;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .slide {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      padding: 60px 80px;
+      opacity: 0;
+      pointer-events: none;
+      transform: translateX(60px);
+      transition: opacity 0.4s ease, transform 0.4s ease;
+    }
+
+    .slide.active {
+      opacity: 1;
+      pointer-events: all;
+      transform: translateX(0);
+    }
+
+    .slide.prev {
+      opacity: 0;
+      transform: translateX(-60px);
+    }
+
+    /* ─── Layouts ─── */
+    .slide.layout-title { background: radial-gradient(ellipse at 60% 40%, #1a2d4f 0%, var(--bg) 65%); }
+    .slide.layout-section { background: radial-gradient(ellipse at 30% 60%, #1a1f2e 0%, var(--bg) 65%); }
+    .slide.layout-demo { background: radial-gradient(ellipse at 70% 30%, #1a2420 0%, var(--bg) 65%); }
+    .slide.layout-content { background: var(--bg); }
+    .slide.layout-closing { background: radial-gradient(ellipse at 50% 50%, #1a1828 0%, var(--bg) 65%); }
+
+    /* ─── Title slide ─── */
+    .title-wrap { text-align: center; max-width: 900px; }
+    .session-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(88, 166, 255, 0.12);
+      border: 1px solid rgba(88, 166, 255, 0.3);
+      color: var(--blue);
+      font-size: 0.75rem;
+      font-weight: 700;
+      padding: 5px 14px;
+      border-radius: 20px;
+      letter-spacing: 0.07em;
+      text-transform: uppercase;
+      margin-bottom: 28px;
+    }
+
+    .title-wrap h1 {
+      font-size: clamp(2.2rem, 4.5vw, 3.8rem);
+      font-weight: 800;
+      line-height: 1.2;
+      letter-spacing: -0.02em;
+      background: linear-gradient(135deg, #e6edf3 20%, var(--blue) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      padding-bottom: 0.1em;
+      margin-bottom: 20px;
+    }
+
+    .title-wrap .subtitle {
+      font-size: clamp(1rem, 2vw, 1.35rem);
+      color: var(--muted);
+      font-style: italic;
+      margin-bottom: 36px;
+      line-height: 1.5;
+    }
+
+    .title-meta {
+      display: flex;
+      justify-content: center;
+      gap: 28px;
+      flex-wrap: wrap;
+    }
+
+    .meta-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.9rem;
+      color: var(--muted);
+    }
+    .meta-item svg { color: var(--blue); }
+
+    /* ─── Section heading slide ─── */
+    .section-wrap { text-align: center; max-width: 800px; }
+    .section-num {
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: var(--blue);
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      margin-bottom: 16px;
+    }
+    .section-wrap h2 {
+      font-size: clamp(2rem, 4vw, 3.2rem);
+      font-weight: 800;
+      line-height: 1.2;
+      letter-spacing: -0.02em;
+      margin-bottom: 16px;
+    }
+
+    .section-wrap p {
+      color: var(--muted);
+      font-size: 1.05rem;
+      line-height: 1.7;
+      max-width: 650px;
+      margin: 0 auto;
+    }
+
+    /* ─── Demo slide ─── */
+    .demo-wrap {
+      width: 100%;
+      max-width: 1000px;
+      display: grid;
+      grid-template-columns: 1fr 1.5fr;
+      gap: 48px;
+      align-items: start;
+    }
+
+    .demo-left .demo-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(63, 185, 80, 0.12);
+      border: 1px solid rgba(63, 185, 80, 0.3);
+      color: var(--green);
+      font-size: 0.7rem;
+      font-weight: 700;
+      padding: 4px 12px;
+      border-radius: 20px;
+      letter-spacing: 0.07em;
+      text-transform: uppercase;
+      margin-bottom: 16px;
+    }
+
+    .demo-left h2 {
+      font-size: clamp(1.8rem, 3vw, 2.6rem);
+      font-weight: 800;
+      line-height: 1.2;
+      letter-spacing: -0.02em;
+      margin-bottom: 10px;
+    }
+
+    .demo-left p {
+      color: var(--muted);
+      font-size: 0.95rem;
+      line-height: 1.65;
+    }
+
+    .demo-right {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 24px 28px;
+    }
+
+    /* ─── Content slide ─── */
+    .content-wrap { width: 100%; max-width: 900px; }
+    .content-wrap .slide-label {
+      font-size: 0.7rem;
+      font-weight: 700;
+      color: var(--blue);
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      margin-bottom: 12px;
+    }
+    .content-wrap h2 {
+      font-size: clamp(1.6rem, 2.8vw, 2.4rem);
+      font-weight: 800;
+      line-height: 1.2;
+      letter-spacing: -0.02em;
+      margin-bottom: 28px;
+    }
+
+    /* ─── Lists ─── */
+    ul.points {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    ul.points li {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      font-size: clamp(0.85rem, 1.4vw, 1.05rem);
+      line-height: 1.6;
+      color: var(--text);
+    }
+
+    ul.points li .bullet {
+      flex-shrink: 0;
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--blue);
+      margin-top: 9px;
+    }
+
+    ul.points li .bullet.green { background: var(--green); }
+    ul.points li .bullet.purple { background: var(--purple); }
+    ul.points li .bullet.orange { background: var(--orange); }
+
+    /* ─── Code block ─── */
+    .code-block {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 16px 20px;
+      font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+      font-size: 0.88rem;
+      color: #e6edf3;
+      margin: 8px 0;
+      overflow: hidden;
+    }
+
+    .code-block .comment { color: var(--muted); }
+    .code-block .cmd { color: var(--green); }
+    .code-block .arg { color: var(--blue); }
+    .code-block .str { color: var(--orange); }
+
+    /* ─── Stat callout ─── */
+    .stat-row {
+      display: flex;
+      gap: 20px;
+      flex-wrap: wrap;
+      margin-top: 8px;
+    }
+
+    .stat-card {
+      flex: 1;
+      min-width: 140px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 18px 20px;
+      text-align: center;
+    }
+
+    .stat-card .num {
+      font-size: 2.2rem;
+      font-weight: 800;
+      color: var(--blue);
+      line-height: 1;
+      margin-bottom: 6px;
+    }
+
+    .stat-card .num.green { color: var(--green); }
+    .stat-card .num.purple { color: var(--purple); }
+
+    .stat-card .label {
+      font-size: 0.8rem;
+      color: var(--muted);
+      line-height: 1.4;
+    }
+
+    /* ─── Surface grid ─── */
+    .surface-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+      width: 100%;
+      max-width: 900px;
+    }
+
+    .surface-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 18px 16px;
+      text-align: center;
+    }
+
+    .surface-card .icon { font-size: 1.8rem; margin-bottom: 8px; }
+    .surface-card .name { font-size: 0.85rem; font-weight: 600; margin-bottom: 4px; }
+    .surface-card .desc { font-size: 0.72rem; color: var(--muted); }
+
+    /* ─── SDLC arc ─── */
+    .sdlc-arc {
+      display: flex;
+      align-items: center;
+      gap: 0;
+      flex-wrap: nowrap;
+      width: 100%;
+      max-width: 860px;
+      margin-top: 16px;
+    }
+
+    .sdlc-step {
+      flex: 1;
+      text-align: center;
+      padding: 14px 8px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      position: relative;
+    }
+
+    .sdlc-step:first-child { border-radius: 10px 0 0 10px; }
+    .sdlc-step:last-child { border-radius: 0 10px 10px 0; }
+
+    .sdlc-step:not(:last-child)::after {
+      content: '→';
+      position: absolute;
+      right: -10px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--muted);
+      font-size: 1rem;
+      z-index: 1;
+    }
+
+    .sdlc-step .phase { font-size: 0.7rem; font-weight: 700; color: var(--blue); }
+    .sdlc-step .tool { font-size: 0.75rem; color: var(--muted); margin-top: 2px; }
+
+    .sdlc-step { cursor: pointer; transition: background 0.2s, border-color 0.2s; }
+    .sdlc-step:hover { background: rgba(88, 166, 255, 0.08); }
+    .sdlc-step.active { background: rgba(88, 166, 255, 0.12); border-color: var(--blue); z-index: 2; }
+
+    .sdlc-hint {
+      color: var(--muted);
+      font-size: 0.75rem;
+      margin-top: 10px;
+      opacity: 0.7;
+      transition: opacity 0.3s;
+    }
+
+    .sdlc-detail {
+      margin-top: 20px;
+      max-width: 860px;
+      width: 100%;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 20px 24px;
+      min-height: 60px;
+      transition: opacity 0.25s ease;
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+    }
+
+    .sdlc-detail.is-open {
+      opacity: 1;
+      visibility: visible;
+      pointer-events: auto;
+    }
+
+    .sdlc-detail .detail-title {
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: var(--blue);
+      margin-bottom: 6px;
+    }
+
+    .sdlc-detail .detail-body {
+      font-size: 0.82rem;
+      color: var(--muted);
+      line-height: 1.6;
+    }
+
+    .sdlc-detail .detail-body strong { color: var(--text); }
+
+    /* ─── Closing slide ─── */
+    .closing-wrap { text-align: center; max-width: 800px; }
+
+    .closing-wrap .icon-ring {
+      width: 80px; height: 80px;
+      border-radius: 50%;
+      background: rgba(88, 166, 255, 0.1);
+      border: 1px solid rgba(88, 166, 255, 0.3);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2rem;
+      margin: 0 auto 28px;
+    }
+
+    .closing-wrap h2 {
+      font-size: clamp(1.8rem, 3.5vw, 3rem);
+      font-weight: 800;
+      line-height: 1.2;
+      margin-bottom: 16px;
+    }
+
+    .closing-wrap p {
+      color: var(--muted);
+      font-size: 1.05rem;
+      line-height: 1.7;
+      margin-bottom: 28px;
+    }
+
+    .cta-items {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      text-align: left;
+      max-width: 520px;
+      margin: 0 auto;
+    }
+
+    .cta-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 14px 18px;
+      font-size: 0.92rem;
+    }
+
+    .cta-item .num {
+      flex-shrink: 0;
+      width: 24px; height: 24px;
+      background: var(--blue-dim);
+      color: #fff;
+      font-weight: 700;
+      font-size: 0.75rem;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+    }
+
+    /* ─── Progress bar ─── */
+    #progress {
+      position: fixed;
+      top: 0; left: 0;
+      height: 3px;
+      background: var(--blue);
+      transition: width 0.4s ease;
+      z-index: 100;
+    }
+
+    /* ─── Nav bar ─── */
+    #nav {
+      position: fixed;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      background: rgba(22, 27, 34, 0.9);
+      border: 1px solid var(--border);
+      border-radius: 40px;
+      padding: 10px 20px;
+      backdrop-filter: blur(8px);
+      z-index: 100;
+    }
+
+    #nav button {
+      background: none;
+      border: none;
+      color: var(--muted);
+      cursor: pointer;
+      padding: 6px 10px;
+      border-radius: 6px;
+      font-size: 0.9rem;
+      transition: color 0.15s, background 0.15s;
+    }
+
+    #nav button:hover { color: var(--text); background: var(--surface2); }
+    #nav button:disabled { opacity: 0.3; cursor: default; }
+
+    #nav .counter {
+      font-size: 0.8rem;
+      color: var(--muted);
+      min-width: 60px;
+      text-align: center;
+    }
+
+    /* ─── Home link ─── */
+    #home-link {
+      position: fixed;
+      top: 16px;
+      left: 20px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--muted);
+      text-decoration: none;
+      font-size: 0.8rem;
+      padding: 6px 12px;
+      border-radius: 20px;
+      transition: color 0.15s, background 0.15s;
+      z-index: 100;
+    }
+
+    #home-link:hover { color: var(--text); background: rgba(22, 27, 34, 0.8); }
+
+    /* ─── Slide number badge ─── */
+    #slide-num {
+      position: fixed;
+      top: 16px;
+      right: 20px;
+      font-size: 0.75rem;
+      color: var(--muted);
+      background: rgba(22, 27, 34, 0.8);
+      border: 1px solid var(--border);
+      padding: 5px 12px;
+      border-radius: 20px;
+      z-index: 100;
+    }
+
+    /* ─── Keyboard hint ─── */
+    #key-hint {
+      position: fixed;
+      bottom: 80px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 0.72rem;
+      color: var(--muted);
+      opacity: 0.6;
+    }
+
+    /* ─── Speaker notes toggle ─── */
+    #notes-btn {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      background: rgba(22, 27, 34, 0.9);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--muted);
+      font-size: 0.75rem;
+      padding: 8px 14px;
+      cursor: pointer;
+      transition: color 0.15s;
+      z-index: 102;
+    }
+    #notes-btn:hover { color: var(--text); }
+
+    #notes-panel {
+      position: fixed;
+      bottom: 0; left: 0; right: 0;
+      max-height: 0;
+      overflow: hidden;
+      background: rgba(13, 17, 23, 0.97);
+      border-top: 1px solid var(--border);
+      transition: max-height 0.3s ease;
+      z-index: 101;
+    }
+
+    #notes-panel.open { max-height: 220px; }
+
+    #notes-content {
+      padding: 16px 180px 16px 32px;
+      font-size: 0.88rem;
+      color: var(--muted);
+      line-height: 1.6;
+      overflow-y: auto;
+      max-height: 220px;
+    }
+
+    #notes-content strong { color: var(--text); }
+
+    @media (max-width: 768px) {
+      .slide { padding: 40px 28px; }
+      .demo-wrap { grid-template-columns: 1fr; gap: 24px; }
+      .surface-grid { grid-template-columns: repeat(2, 1fr); }
+      .sdlc-arc { flex-wrap: wrap; }
+      .sdlc-step:not(:last-child)::after { display: none; }
+      #notes-content { padding-right: 16px; }
+    }
+  </style>
+</head>
+<body>
+
+<div id="progress"></div>
+<a id="home-link" href="../index.html">
+  <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor">
+    <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38
+      0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13
+      -.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66
+      .07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15
+      -.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0
+      1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82
+      1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01
+      1.93-.01 2.2 0 .21.15.46.55.38A8.012 8.012 0 0 0 16 8c0-4.42-3.58-8-8-8z"/>
+  </svg>
+  All Sessions
+</a>
+<div id="slide-num"></div>
+
+<div id="deck">
+
+  <!-- ── SLIDE 1 · Title ── -->
+  <div class="slide layout-title active"
+       data-notes="Welcome to NYC Dev Days 2026! Today we follow Alex — a fictional developer at TechMart — through a full working day. Every stage of that day maps to a live demo. GitHub Copilot shows up at every single step.">
+    <div class="title-wrap">
+      <div class="session-badge">Session 1 · Keynote</div>
+      <h1>A Day in the Life of a Developer with GitHub + AI</h1>
+      <p class="subtitle">NYC Dev Days 2026</p>
+      <div class="title-meta">
+        <div class="meta-item">
+          <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor"><path d="M1.5 2.75C1.5 1.784 2.284 1 3.25 1h9.5c.966 0 1.75.784 1.75 1.75v9.5A1.75 1.75 0 0 1 12.75 14H3.25A1.75 1.75 0 0 1 1.5 12.25zM3.25 2.5a.25.25 0 0 0-.25.25v9.5c0 .138.112.25.25.25h9.5a.25.25 0 0 0 .25-.25v-9.5a.25.25 0 0 0-.25-.25z"/></svg>
+          GitHub Copilot across the SDLC
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── SLIDE 2 · The Problem ── -->
+  <div class="slide layout-section"
+       data-notes="Raise your hand moment — how much of your day is actually writing code? The 30% stat is from GitHub's own research. The rest is coordination, context-switching, meetings, flaky tests, PR descriptions nobody reads. That's the pain point we're solving today.">
+    <div class="content-wrap">
+      <div class="slide-label">The Problem</div>
+      <h2>Developers Spend 30% of Their Day Writing Code</h2>
+      <div style="display:flex;gap:32px;align-items:flex-start;margin-top:8px;flex-wrap:wrap;">
+        <div style="flex:0 0 auto;">
+          <div style="font-size:7rem;font-weight:800;line-height:1;background:linear-gradient(135deg,var(--blue),var(--purple));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">30%</div>
+          <div style="color:var(--muted);font-size:0.85rem;margin-top:4px;text-align:center;">writing code</div>
+          <div style="text-align:center;margin-top:4px;"><a href="https://github.blog/news-insights/research/research-quantifying-github-copilots-impact-on-developer-productivity-and-happiness/" target="_blank" rel="noopener noreferrer" style="color:var(--blue);font-size:0.8rem;" aria-label="Source: GitHub research on Copilot's impact on developer productivity and happiness">Source</a></div>
+        </div>
+        <div style="flex:1;min-width:260px;">
+          <ul class="points" style="margin-top:8px;">
+            <li><span class="bullet orange"></span><span>The other 70%: meetings, Slack threads, context-switching, manual toil</span></li>
+            <li><span class="bullet orange"></span><span>Flaky tests that nobody owns. PR descriptions nobody reads.</span></li>
+            <li><span class="bullet orange"></span><span>Security alerts that sit in a backlog for weeks.</span></li>
+            <li><span class="bullet orange"></span><span>New features blocked by onboarding a codebase no one documented.</span></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── SLIDE 3 · The Vision ── -->
+  <div class="slide layout-content"
+       data-notes="Introduce the 'ambient intelligence' concept. Copilot started as autocomplete in the editor. Today it's a teammate that lives in your terminal, your PRs, your CI pipeline, your GitHub.com issues. Not just one feature — a platform shift.">
+    <div class="content-wrap">
+      <div class="slide-label">The Vision</div>
+      <h2>GitHub Copilot Is Your AI Teammate Across the Entire Stack</h2>
+      <ul class="points">
+        <li><span class="bullet"></span><span>Not just autocomplete. Copilot is now <strong>ambient intelligence</strong> — present everywhere you already work.</span></li>
+        <li><span class="bullet green"></span><span><strong>Terminal</strong> — natural-language shell commands and explanations via the GitHub CLI</span></li>
+        <li><span class="bullet green"></span><span><strong>Editor</strong> — completions, inline chat, and multi-file edits in VS Code &amp; JetBrains</span></li>
+        <li><span class="bullet purple"></span><span><strong>Pull Requests</strong> — AI code review with severity-rated inline suggestions</span></li>
+        <li><span class="bullet purple"></span><span><strong>Security</strong> — GHAS finds vulnerabilities; Copilot Autofix proposes the fix</span></li>
+        <li><span class="bullet orange"></span><span><strong>GitHub.com</strong> — repo-aware chat, PR summaries, issue triage — where collaboration happens</span></li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- ── SLIDE 4 · Today's Story ── -->
+  <div class="slide layout-section"
+       data-notes="Set up the narrative arc. Alex is a developer at TechMart — a fictional e-commerce platform. Sprint board is open. Issue #4 (PDP-001) is waiting. There's a GHAS alert in the sidebar. On-call shift starts at 9am. Let's see how far AI can carry Alex through one day.">
+    <div class="section-wrap">
+      <div class="section-num">Today's Story</div>
+      <h2>Meet Alex — TechMart Developer</h2>
+      <p style="margin-bottom:28px;">Sprint board open. Issue #4 (PDP-001) waiting. A GHAS alert. An on-call shift starting. A whole day ahead.</p>
+      <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:12px;max-width:620px;margin:0 auto 24px;">
+        <div style="background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:16px 18px;text-align:left;">
+          <div style="font-size:0.7rem;font-weight:700;color:var(--blue);letter-spacing:0.08em;text-transform:uppercase;margin-bottom:6px;">Active Issue</div>
+          <div style="font-size:0.9rem;font-weight:600;">#4 · PDP-001</div>
+          <div style="font-size:0.78rem;color:var(--muted);margin-top:2px;">Add product detail page</div>
+        </div>
+        <div style="background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:16px 18px;text-align:left;">
+          <div style="font-size:0.7rem;font-weight:700;color:var(--red);letter-spacing:0.08em;text-transform:uppercase;margin-bottom:6px;">GHAS Alert</div>
+          <div style="font-size:0.9rem;font-weight:600;">CWE-79 · XSS</div>
+          <div style="font-size:0.78rem;color:var(--muted);margin-top:2px;">app.js · innerHTML sink</div>
+        </div>
+        <div style="background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:16px 18px;text-align:left;">
+          <div style="font-size:0.7rem;font-weight:700;color:var(--orange);letter-spacing:0.08em;text-transform:uppercase;margin-bottom:6px;">On-Call</div>
+          <div style="font-size:0.9rem;font-weight:600;">9:00 AM shift</div>
+          <div style="font-size:0.78rem;color:var(--muted);margin-top:2px;">Runbook: TechMart deploys</div>
+        </div>
+        <div style="background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:16px 18px;text-align:left;">
+          <div style="font-size:0.7rem;font-weight:700;color:var(--green);letter-spacing:0.08em;text-transform:uppercase;margin-bottom:6px;">Sprint</div>
+          <div style="font-size:0.9rem;font-weight:600;">CART-003 in scope</div>
+          <div style="font-size:0.78rem;color:var(--muted);margin-top:2px;">4 issues depending on it</div>
+        </div>
+      </div>
+      <p style="font-size:0.9rem;font-style:italic;color:var(--muted);">"Let's see how far AI can carry a developer through one day."</p>
+    </div>
+  </div>
+
+  <!-- ── SLIDE 5 · The SDLC ── -->
+  <div class="slide layout-content"
+       data-notes="Frame each demo as a phase of Alex's day. Terminal in the morning, coding agent picks up the issue, review + security in the afternoon, extensions during on-call, IDE for a hotfix, GitHub.com to close the loop. Every phase, same day.">
+    <div class="content-wrap">
+      <div class="slide-label">The Arc</div>
+      <h2>AI at Every Stage of the Cycle</h2>
+      <p style="color:var(--muted);margin-bottom:20px;font-size:0.95rem;">Each demo maps to a phase of Alex's day at TechMart</p>
+      <div class="sdlc-arc">
+        <div class="sdlc-step" data-detail="terminal" role="button" tabindex="0" aria-controls="sdlc-detail" aria-expanded="false"><div class="phase">Terminal</div><div class="tool">gh copilot</div></div>
+        <div class="sdlc-step" data-detail="plan" role="button" tabindex="0" aria-controls="sdlc-detail" aria-expanded="false"><div class="phase">Plan</div><div class="tool">Coding Agent</div></div>
+        <div class="sdlc-step" data-detail="code" role="button" tabindex="0" aria-controls="sdlc-detail" aria-expanded="false"><div class="phase">Code</div><div class="tool">IDE</div></div>
+        <div class="sdlc-step" data-detail="review" role="button" tabindex="0" aria-controls="sdlc-detail" aria-expanded="false"><div class="phase">Review</div><div class="tool">Copilot Review</div></div>
+        <div class="sdlc-step" data-detail="security" role="button" tabindex="0" aria-controls="sdlc-detail" aria-expanded="false"><div class="phase">Security</div><div class="tool">GHAS + Autofix</div></div>
+        <div class="sdlc-step" data-detail="extend" role="button" tabindex="0" aria-controls="sdlc-detail" aria-expanded="false"><div class="phase">Extend</div><div class="tool">SDK</div></div>
+        <div class="sdlc-step" data-detail="collaborate" role="button" tabindex="0" aria-controls="sdlc-detail" aria-expanded="false"><div class="phase">Collaborate</div><div class="tool">GitHub.com</div></div>
+      </div>
+      <p class="sdlc-hint">👆 Click a phase to learn more</p>
+      <div class="sdlc-detail" id="sdlc-detail" aria-hidden="true">
+        <div class="detail-title" id="sdlc-detail-title"></div>
+        <div class="detail-body" id="sdlc-detail-body"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── SLIDE 6 · Demo 1: Copilot CLI ── -->
+  <div class="slide layout-demo" data-demo="1"
+       data-notes="The terminal is where developer flow lives. Copilot CLI is a full agentic session — the same coding agent, running locally. Launch copilot, ask about sprint issues via built-in GitHub MCP, plan the work, then delegate to open a PR — all without leaving the shell.">
+    <div class="demo-wrap">
+      <div class="demo-left">
+        <div class="demo-tag">Demo 1</div>
+        <h2>A Full Coding Agent in Your Terminal</h2>
+        <p>The same agentic runtime that powers GitHub — running locally in your shell.</p>
+      </div>
+      <div class="demo-right">
+        <div class="code-block">
+          <div class="comment"># Launch Copilot CLI</div>
+          <div><span class="cmd">$ copilot</span></div>
+          <br/>
+          <div class="comment"># Find sprint work via GitHub MCP</div>
+          <div><span class="str">&gt; What are my open issues labeled sprint-1?</span></div>
+          <br/>
+          <div class="comment"># Plan, then delegate to open a PR</div>
+          <div><span class="str">&gt; Plan the implementation for issue #4</span></div>
+          <div><span class="cmd">/delegate</span></div>
+        </div>
+        <ul class="points" style="margin-top:16px">
+          <li><span class="bullet green"></span><span><strong>GitHub MCP built in</strong> — issues, PRs, branches via natural language</span></li>
+          <li><span class="bullet green"></span><span><strong>Shift+Tab</strong> to cycle modes: ask → plan → autopilot</span></li>
+          <li><span class="bullet green"></span><span><code style="font-size:0.85em;color:var(--green)">/delegate</code> — branch, implement, and open a PR from the terminal</span></li>
+          <li><span class="bullet green"></span><span><code style="font-size:0.85em;color:var(--green)">/model</code> &amp; <code style="font-size:0.85em;color:var(--green)">/fleet</code> — switch models or parallelize subagents</span></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── SLIDE 7 · Demo 2: Coding Agent ── -->
+  <div class="slide layout-demo" data-demo="2"
+       data-notes="This is the star. The coding agent doesn't suggest — it acts. Assign Issue #4 (PDP-001) to Copilot, walk away. The agent reads .github/copilot-instructions.md, explores TechMart's repo, writes code, commits it, and opens a PR. Full session log for auditability.">
+    <div class="demo-wrap">
+      <div class="demo-left">
+        <div class="demo-tag">Demo 2</div>
+        <h2>Assign It. Go Do Something Else. Come Back to a PR.</h2>
+        <p>Issue #4 PDP-001 → Assign to Copilot → Agent explores TechMart repo → Opens PR.</p>
+      </div>
+      <div class="demo-right">
+        <ul class="points">
+          <li><span class="bullet green"></span><span>Runs inside <strong>GitHub Actions</strong> — fully repo-native, no external orchestration</span></li>
+          <li><span class="bullet green"></span><span>Reads <code style="font-size:0.85em;color:var(--blue)">.github/copilot-instructions.md</code> <em>before writing a single line</em></span></li>
+          <li><span class="bullet green"></span><span><strong>Session logs</strong> expose every decision — full transparency &amp; auditability</span></li>
+          <li><span class="bullet green"></span><span>Best tasks: well-scoped bugs, new endpoints, boilerplate, test coverage</span></li>
+          <li><span class="bullet green"></span><span>If the issue is unclear, the agent asks clarifying questions first</span></li>
+        </ul>
+        <div class="code-block" style="margin-top:16px;">
+          <div class="comment"># What the agent does with PDP-001</div>
+          <div><span class="arg">1.</span> Reads copilot-instructions.md</div>
+          <div><span class="arg">2.</span> Explores routes/, models/, tests/</div>
+          <div><span class="arg">3.</span> Writes route + tests + migration</div>
+          <div><span class="arg">4.</span> Opens PR with full summary</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── SLIDE 8 · What Makes a Task Agent-Ready? ── -->
+  <div class="slide layout-content"
+       data-notes="Help the audience understand when to use the agent vs when to stay in the IDE. The key is scope clarity. A great issue is basically a great prompt. Four properties: bounded scope, measurable success, established stack, no ambiguous architecture decisions.">
+    <div class="content-wrap">
+      <div class="slide-label">Agent Readiness</div>
+      <h2>Writing Great Issues = Writing Great Agent Prompts</h2>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-top:4px;">
+        <div>
+          <div style="font-size:0.75rem;font-weight:700;color:var(--green);letter-spacing:0.08em;text-transform:uppercase;margin-bottom:10px;">✓ Good for the Agent</div>
+          <ul class="points">
+            <li><span class="bullet green"></span><span><strong>Bounded scope</strong> — one endpoint, one migration, one component</span></li>
+            <li><span class="bullet green"></span><span><strong>Measurable success</strong> — tests pass, API contract matches spec</span></li>
+            <li><span class="bullet green"></span><span><strong>Established tech stack</strong> — Express, Jest, SQLite already in use</span></li>
+            <li><span class="bullet green"></span><span><strong>No ambiguous architecture</strong> — the right pattern already exists in the repo</span></li>
+          </ul>
+        </div>
+        <div>
+          <div style="font-size:0.75rem;font-weight:700;color:var(--red);letter-spacing:0.08em;text-transform:uppercase;margin-bottom:10px;">✗ Keep for the Human</div>
+          <ul class="points">
+            <li><span class="bullet orange"></span><span>"Improve performance" — no clear success metric</span></li>
+            <li><span class="bullet orange"></span><span>"Refactor the whole auth system" — too broad, architectural</span></li>
+            <li><span class="bullet orange"></span><span>Cross-cutting changes with organizational buy-in required</span></li>
+            <li><span class="bullet orange"></span><span>Anything requiring stakeholder judgment calls</span></li>
+          </ul>
+        </div>
+      </div>
+      <div class="code-block" style="margin-top:20px;">
+        <div class="comment"># PDP-001 — a well-scoped agent issue</div>
+        <div><span class="str">"Add GET /products/:id endpoint. Return name, price, description, stock.</span></div>
+        <div><span class="str"> Follow existing route patterns in src/routes/. Add Jest tests."</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── SLIDE 9 · Demo 3: Code Review ── -->
+  <div class="slide layout-demo" data-demo="3"
+       data-notes="The agent wrote functional code — now Copilot reviews it. Request Copilot as reviewer on the PDP-001 PR. It leaves severity-rated inline comments: Critical for security issues, Moderate for logic gaps, Low for style. One-click Apply fix commits the change right from the review.">
+    <div class="demo-wrap">
+      <div class="demo-left">
+        <div class="demo-tag">Demo 3</div>
+        <h2>AI Reviews What the Agent Wrote</h2>
+        <p>Request Copilot as reviewer on the PDP-001 PR. Severity-rated comments with one-click fixes.</p>
+      </div>
+      <div class="demo-right">
+        <ul class="points">
+          <li><span class="bullet green"></span><span>Understands <strong>intent</strong>, not just syntax — spots logic errors and missing edge cases</span></li>
+          <li><span class="bullet green"></span><span>Inline comments rated: <strong style="color:var(--red)">Critical</strong> / <strong style="color:var(--orange)">Moderate</strong> / <strong style="color:var(--muted)">Low</strong></span></li>
+          <li><span class="bullet green"></span><span>One-click <strong>"Apply Fix"</strong> — accept a suggestion and it commits directly to the PR branch</span></li>
+          <li><span class="bullet green"></span><span>Checks consistency with how similar functions are called <em>elsewhere in TechMart</em></span></li>
+        </ul>
+        <div class="stat-row" style="margin-top:20px">
+          <div class="stat-card"><div class="num green">~40%</div><div class="label">Reduction in review cycle time</div><div><a href="https://github.blog/ai-and-ml/github-copilot/60-million-copilot-code-reviews-and-counting/" target="_blank" rel="noopener noreferrer" style="color:var(--blue);font-size:0.7rem;">Source</a></div></div>
+          <div class="stat-card"><div class="num">✓</div><div class="label">Human reviewers focus on architecture &amp; judgment</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── SLIDE 10 · Demo 4: Code Quality ── -->
+  <div class="slide layout-demo" data-demo="4"
+       data-notes="Alex's morning GHAS alert: CWE-79 XSS in app.js — an innerHTML sink. CodeQL caught it. Copilot Autofix proposes replacing innerHTML with textContent and explains exactly why. About 70% of GHAS alerts are resolvable automatically. Security education baked into the workflow.">
+    <div class="demo-wrap">
+      <div class="demo-left">
+        <div class="demo-tag">Demo 4</div>
+        <h2>From Vulnerability to Fix in One Click</h2>
+        <p>GHAS CodeQL flags XSS in <code style="color:var(--orange)">app.js</code> (CWE-79). Copilot Autofix proposes the fix. Explanation included.</p>
+      </div>
+      <div class="demo-right">
+        <div class="code-block">
+          <div class="comment">// ❌ Vulnerable — innerHTML sink</div>
+          <div><span class="arg">productEl</span>.innerHTML = <span class="arg">req.query.name</span>;</div>
+          <br/>
+          <div class="comment">// ✅ Autofix — safe replacement</div>
+          <div><span class="arg">productEl</span>.textContent = <span class="arg">req.query.name</span>;</div>
+        </div>
+        <ul class="points" style="margin-top:16px">
+          <li><span class="bullet green"></span><span><strong>GHAS CodeQL</strong> detects: XSS, SQLi, hardcoded credentials, path traversal</span></li>
+          <li><span class="bullet green"></span><span><strong>Copilot Autofix</strong> generates an actual code change — not "sanitize your inputs"</span></li>
+          <li><span class="bullet green"></span><span>Fix includes full explanation of the vulnerability and attack vector closed</span></li>
+        </ul>
+        <div class="stat-row" style="margin-top:16px">
+          <div class="stat-card"><div class="num green">~70%</div><div class="label">of GHAS alerts resolvable automatically with Autofix</div><div><a href="https://github.blog/changelog/2025-02-20-copilot-autofix-is-available-for-more-code-scanning-alerts/" target="_blank" rel="noopener noreferrer" style="color:var(--blue);font-size:0.7rem;">Source</a></div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── SLIDE 11 · Demo 5: SDK / Extensions ── -->
+  <div class="slide layout-demo" data-demo="5"
+       data-notes="Alex is on-call and needs to know how to roll back TechMart. Instead of hunting through wikis, they type @runbook in Copilot Chat. The custom extension returns the runbook instantly. Two types: agent extensions (full LLM loop) and skillset extensions (lighter, callable functions). Build in any language.">
+    <div class="demo-wrap">
+      <div class="demo-left">
+        <div class="demo-tag">Demo 5</div>
+        <h2>Copilot That Speaks Your Team's Language</h2>
+        <p>Custom extensions surface your team's knowledge inside Copilot Chat — invoked with <code style="color:var(--blue)">@extension-name</code>.</p>
+      </div>
+      <div class="demo-right">
+        <div class="code-block">
+          <div class="comment"># Alex during on-call shift</div>
+          <div><span class="arg">@runbook</span> <span class="str">how do I roll back TechMart</span></div>
+          <div><span class="str">if a bad deploy hits production?</span></div>
+          <br/>
+          <div class="comment"># Extension returns the runbook instantly</div>
+          <div><span class="cmd">→</span> <span style="color:var(--text);">Step 1: gh workflow run rollback.yml …</span></div>
+        </div>
+        <ul class="points" style="margin-top:16px">
+          <li><span class="bullet green"></span><span><strong>Agent extensions</strong> — full LLM reasoning loop, call external APIs, take actions</span></li>
+          <li><span class="bullet green"></span><span><strong>Skillset extensions</strong> — lighter-weight, define a set of callable functions</span></li>
+          <li><span class="bullet green"></span><span>Examples: <code style="color:var(--orange)">@oncall</code>, <code style="color:var(--orange)">@jira</code>, <code style="color:var(--orange)">@deploy</code>, <code style="color:var(--orange)">@runbook</code></span></li>
+          <li><span class="bullet green"></span><span>Build in <strong>any language</strong> — registered as a GitHub App</span></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── SLIDE 12 · Demo 6: IDE ── -->
+  <div class="slide layout-demo" data-demo="6"
+       data-notes="Three levels of IDE assistance. Tab completions are the foundation — fast, contextual, multi-line. Cmd+I inline chat lets Alex describe a change and see the diff. Copilot Edits spans multiple files with one prompt — this is where it feels like a pair programmer, not autocomplete. JetBrains has full parity with VS Code.">
+    <div class="demo-wrap">
+      <div class="demo-left">
+        <div class="demo-tag">Demo 6</div>
+        <h2>The Editor: Completions → Chat → Multi-File Edits</h2>
+        <p>VS Code &amp; JetBrains: three levels of AI assistance across the spectrum.</p>
+      </div>
+      <div class="demo-right">
+        <ul class="points">
+          <li><span class="bullet green"></span><span><strong>Tab Completions</strong> — multi-line, context-aware; understands workspace patterns</span></li>
+          <li><span class="bullet green"></span><span><strong>Inline Chat</strong> (<code style="color:var(--blue)">Cmd+I</code>) — describe a change in English, see the diff, accept or discard</span></li>
+          <li><span class="bullet green"></span><span><strong>Copilot Edits</strong> — one prompt, diffs across <em>all</em> relevant files simultaneously</span></li>
+          <li><span class="bullet green"></span><span><strong>JetBrains parity</strong> — IntelliJ, PyCharm, GoLand, Rider — same capabilities</span></li>
+        </ul>
+        <div class="code-block" style="margin-top:16px">
+          <div class="comment"># Inline Chat prompts Alex uses today</div>
+          <div><span class="str">"Add input validation to this route handler"</span></div>
+          <div><span class="str">"Write Jest tests for the new /products/:id endpoint"</span></div>
+          <div><span class="str">"Refactor to use async/await throughout"</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── SLIDE 13 · Demo 7: GitHub.com ── -->
+  <div class="slide layout-demo" data-demo="7"
+       data-notes="Copilot on github.com is repo-aware. Three key moments: Chat Q&A for sprint risk analysis — 'which open issues block CART-003?'. PR summary auto-generation for the PDP-001 PR. Issue triage to turn Alex's rough notes into a well-scoped issue with acceptance criteria.">
+    <div class="demo-wrap">
+      <div class="demo-left">
+        <div class="demo-tag">Demo 7</div>
+        <h2>Copilot Where Collaboration Happens</h2>
+        <p>Repo-aware AI chat, auto-generated PR summaries, and issue triage — right on GitHub.com.</p>
+      </div>
+      <div class="demo-right">
+        <ul class="points">
+          <li><span class="bullet green"></span><span><strong>Chat Q&amp;A</strong> — "Which open issues block CART-003?" — traces dependencies across the sprint board</span></li>
+          <li><span class="bullet green"></span><span><strong>PR Summary</strong> — auto-generates: what changed, why, what to focus on in review</span></li>
+          <li><span class="bullet green"></span><span><strong>Issue Triage</strong> — draft a rough idea; Copilot structures it with acceptance criteria, reproduction steps, labels</span></li>
+          <li><span class="bullet green"></span><span>Common thread: Copilot has <strong>your repo's context</strong> — history, patterns, open work</span></li>
+        </ul>
+        <div class="code-block" style="margin-top:16px;">
+          <div class="comment"># Sprint risk analysis via Copilot Chat</div>
+          <div><span class="str">"Summarize the risk if CART-003 slips</span></div>
+          <div><span class="str"> this sprint. Which issues are impacted?"</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── SLIDE 14 · The Bigger Picture ── -->
+  <div class="slide layout-content"
+       data-notes="Synthesize Alex's full day. Every surface covered. The key message: this isn't about any single feature — it's about GitHub becoming an AI-native platform where every surface is contextually aware and proactively helpful.">
+    <div class="content-wrap">
+      <div class="slide-label">The Bigger Picture</div>
+      <h2>One Day. Seven Surfaces. One AI Teammate.</h2>
+      <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:24px;">
+        <span style="background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:5px 14px;font-size:0.8rem;color:var(--green);">Terminal</span>
+        <span style="color:var(--muted);align-self:center;">→</span>
+        <span style="background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:5px 14px;font-size:0.8rem;color:var(--green);">Agent</span>
+        <span style="color:var(--muted);align-self:center;">→</span>
+        <span style="background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:5px 14px;font-size:0.8rem;color:var(--green);">Review</span>
+        <span style="color:var(--muted);align-self:center;">→</span>
+        <span style="background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:5px 14px;font-size:0.8rem;color:var(--green);">Security</span>
+        <span style="color:var(--muted);align-self:center;">→</span>
+        <span style="background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:5px 14px;font-size:0.8rem;color:var(--green);">Extensions</span>
+        <span style="color:var(--muted);align-self:center;">→</span>
+        <span style="background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:5px 14px;font-size:0.8rem;color:var(--green);">IDE</span>
+        <span style="color:var(--muted);align-self:center;">→</span>
+        <span style="background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:5px 14px;font-size:0.8rem;color:var(--green);">GitHub.com</span>
+      </div>
+      <ul class="points">
+        <li><span class="bullet purple"></span><span>"GitHub is becoming an <strong>AI-native platform</strong> where every surface is contextually aware and proactively helpful."</span></li>
+        <li><span class="bullet orange"></span><span>The question has shifted: not <em>"should we use AI?"</em> → <strong>"how do we govern and maximize AI in our engineering org?"</strong></span></li>
+        <li><span class="bullet"></span><span>Alex shipped PDP-001, fixed a CWE-79 alert, handled on-call, and reviewed a PR — all with AI carrying the toil.</span></li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- ── SLIDE 15 · Your Next Three Steps ── -->
+  <div class="slide layout-closing"
+       data-notes="Call to action. Three concrete steps you can do this week. Don't wait for the perfect rollout plan — start with one issue assigned to the agent and one team on Copilot.">
+    <div class="closing-wrap">
+      <div class="icon-ring">🚀</div>
+      <h2>Start This Week</h2>
+      <p>Three things you can do before Friday.</p>
+      <div class="cta-items">
+        <div class="cta-item">
+          <div class="num">1</div>
+          <span><strong>Enable Copilot for your team</strong> — <a href="https://docs.github.com/en/copilot/managing-copilot/managing-github-copilot-in-your-organization/enabling-github-copilot-for-your-organization" style="color:var(--blue);text-decoration:none;">docs.github.com/copilot</a></span>
+        </div>
+        <div class="cta-item">
+          <div class="num">2</div>
+          <span><strong>Assign your first issue to the Copilot coding agent</strong> — pick a well-scoped bug or new endpoint</span>
+        </div>
+        <div class="cta-item">
+          <div class="num">3</div>
+          <span><strong>Explore the Copilot Extensions SDK</strong> — build your <code style="color:var(--orange)">@runbook</code> or <code style="color:var(--orange)">@oncall</code> extension</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── SLIDE 16 · Session 2 Tease ── -->
+  <div class="slide layout-section"
+       data-notes="Tease the cascade demo in Session 2. CART-003 slips and 9 issues across 4 sprints are impacted automatically. Session 2 goes deeper: agents, MCP, enterprise governance. This afternoon — don't miss it.">
+    <div class="section-wrap">
+      <div class="section-num">This Afternoon · The Agentic Developer Loop</div>
+      <h2>What Happens When CART-003 Slips?</h2>
+      <p style="margin-bottom:24px;">9 issues across 4 sprints are impacted automatically. Session 2 shows you how AI handles the cascade.</p>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;max-width:600px;margin:0 auto;">
+        <div style="background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:14px;text-align:center;">
+          <div style="font-size:1.5rem;margin-bottom:6px;">🤖</div>
+          <div style="font-size:0.8rem;font-weight:600;">Agents</div>
+          <div style="font-size:0.72rem;color:var(--muted);margin-top:2px;">Multi-step autonomy</div>
+        </div>
+        <div style="background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:14px;text-align:center;">
+          <div style="font-size:1.5rem;margin-bottom:6px;">🔌</div>
+          <div style="font-size:0.8rem;font-weight:600;">MCP</div>
+          <div style="font-size:0.72rem;color:var(--muted);margin-top:2px;">Tool integration</div>
+        </div>
+        <div style="background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:14px;text-align:center;">
+          <div style="font-size:1.5rem;margin-bottom:6px;">🏢</div>
+          <div style="font-size:0.8rem;font-weight:600;">Governance</div>
+          <div style="font-size:0.72rem;color:var(--muted);margin-top:2px;">Enterprise controls</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── SLIDE 17 · Q&A ── -->
+  <div class="slide layout-closing"
+       data-notes="Open the floor. All demo scripts and materials are in the public repo. Invite people to try the coding agent before leaving today — there are practice issues set up in the TechMart repo.">
+    <div class="closing-wrap">
+      <div class="icon-ring">💬</div>
+      <h2>Questions?</h2>
+      <p>All demo scripts and materials at<br/><strong style="color:var(--blue);">github.com/anweiss/nyc-dev-days</strong></p>
+      <div class="cta-items">
+        <div class="cta-item">
+          <div class="num">→</div>
+          <span><strong>Session 2:</strong> "The Agentic Developer Loop" — agents, MCP, enterprise governance — this afternoon</span>
+        </div>
+        <div class="cta-item">
+          <div class="num">→</div>
+          <span>Try it now: <code style="color:var(--green)">brew install copilot-cli</code></span>
+        </div>
+        <div class="cta-item">
+          <div class="num">→</div>
+          <span><a href="https://docs.github.com/en/copilot" style="color:var(--blue);text-decoration:none;">docs.github.com/en/copilot</a></span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div><!-- #deck -->
+
+<!-- Nav controls -->
+<nav id="nav">
+  <button id="btn-prev" disabled aria-label="Previous slide">
+    <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path fill-rule="evenodd" d="M9.78 12.78a.75.75 0 0 1-1.06 0L4.47 8.53a.75.75 0 0 1 0-1.06l4.25-4.25a.75.75 0 0 1 1.06 1.06L6.06 8l3.72 3.72a.75.75 0 0 1 0 1.06z"/></svg>
+  </button>
+  <span class="counter" id="counter">1 / 17</span>
+  <button id="btn-next" aria-label="Next slide">
+    <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path fill-rule="evenodd" d="M6.22 3.22a.75.75 0 0 1 1.06 0l4.25 4.25a.75.75 0 0 1 0 1.06l-4.25 4.25a.75.75 0 0 1-1.06-1.06L9.94 8 6.22 4.28a.75.75 0 0 1 0-1.06z"/></svg>
+  </button>
+</nav>
+
+<div id="key-hint">← → arrow keys or click to navigate · N for notes</div>
+
+<button id="notes-btn">Speaker Notes (N)</button>
+<div id="notes-panel">
+  <div id="notes-content"></div>
+</div>
+
+<script>
+  const slides = Array.from(document.querySelectorAll('.slide'));
+  const total = slides.length;
+  let current = 0;
+  let notesOpen = false;
+
+  const progress = document.getElementById('progress');
+  const counter = document.getElementById('counter');
+  const slideNum = document.getElementById('slide-num');
+  const btnPrev = document.getElementById('btn-prev');
+  const btnNext = document.getElementById('btn-next');
+  const notesBtn = document.getElementById('notes-btn');
+  const notesPanel = document.getElementById('notes-panel');
+  const notesContent = document.getElementById('notes-content');
+
+  function goTo(idx) {
+    if (idx < 0 || idx >= total) return;
+    slides[current].classList.remove('active');
+    slides[current].classList.add('prev');
+    setTimeout(() => { slides[current].classList.remove('prev'); }, 400);
+    current = idx;
+    slides[current].classList.add('active');
+    update();
+  }
+
+  function update() {
+    const pct = total > 1 ? (current / (total - 1)) * 100 : 100;
+    progress.style.width = pct + '%';
+    counter.textContent = (current + 1) + ' / ' + total;
+    slideNum.textContent = (current + 1) + ' / ' + total;
+    btnPrev.disabled = current === 0;
+    btnNext.disabled = current === total - 1;
+    const demoNum = slides[current].dataset.demo;
+    const notesText = slides[current].dataset.notes || '<em>No notes for this slide.</em>';
+    notesContent.innerHTML = demoNum
+      ? '<strong style="color:var(--green);margin-right:8px;">▶ DEMO ' + demoNum + '</strong>' + notesText
+      : notesText;
+  }
+
+  btnPrev.addEventListener('click', () => goTo(current - 1));
+  btnNext.addEventListener('click', () => goTo(current + 1));
+
+  document.addEventListener('keydown', e => {
+    if (e.key === 'ArrowRight' || e.key === 'ArrowDown' || e.key === ' ') { e.preventDefault(); goTo(current + 1); }
+    if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') { e.preventDefault(); goTo(current - 1); }
+    if (e.key === 'n' || e.key === 'N') toggleNotes();
+  });
+
+  notesBtn.addEventListener('click', toggleNotes);
+
+  function toggleNotes() {
+    notesOpen = !notesOpen;
+    notesPanel.classList.toggle('open', notesOpen);
+    notesBtn.textContent = notesOpen ? 'Hide Notes (N)' : 'Speaker Notes (N)';
+  }
+
+  // Touch/swipe support
+  let touchStartX = 0;
+  document.addEventListener('touchstart', e => { touchStartX = e.touches[0].clientX; });
+  document.addEventListener('touchend', e => {
+    const dx = e.changedTouches[0].clientX - touchStartX;
+    if (Math.abs(dx) > 50) { dx < 0 ? goTo(current + 1) : goTo(current - 1); }
+  });
+
+  // SDLC interactive detail panel (Slide 5)
+  const sdlcDetails = {
+    terminal: {
+      title: 'Terminal — gh copilot CLI',
+      body: 'Alex starts the morning with <strong>gh copilot suggest</strong> to list sprint issues and create a branch. <strong>gh copilot explain</strong> breaks down the complex rebase command that\'s been sitting in the team wiki.'
+    },
+    plan: {
+      title: 'Plan — Copilot Coding Agent',
+      body: 'Issue #4 PDP-001 gets assigned to Copilot. The <strong>coding agent</strong> reads .github/copilot-instructions.md, explores TechMart\'s routes and models, then opens a PR — while Alex moves on to the GHAS alert.'
+    },
+    code: {
+      title: 'Code — IDE (VS Code / JetBrains)',
+      body: 'Three levels: <strong>tab completions</strong> for speed, <strong>Cmd+I inline chat</strong> for targeted changes, and <strong>Copilot Edits</strong> for multi-file refactors. The same capabilities work across VS Code and JetBrains.'
+    },
+    review: {
+      title: 'Review — Copilot Code Review',
+      body: '<strong>Copilot Code Review</strong> is requested as a reviewer on the PDP-001 PR. It leaves severity-rated inline comments — Critical, Moderate, Low — with one-click Apply Fix to commit suggestions directly to the branch.'
+    },
+    security: {
+      title: 'Security — GHAS + Copilot Autofix',
+      body: '<strong>CodeQL</strong> flagged CWE-79 XSS in app.js (innerHTML sink). <strong>Copilot Autofix</strong> proposes replacing it with textContent, explains the attack vector, and auto-creates the fix PR. ~70% of GHAS alerts resolvable this way.'
+    },
+    extend: {
+      title: 'Extend — Copilot Extensions SDK',
+      body: 'Alex is on-call and types <strong>@runbook how do I roll back TechMart?</strong> in Copilot Chat. The custom extension returns the runbook instantly. Build extensions in any language as GitHub Apps — agent or skillset style.'
+    },
+    collaborate: {
+      title: 'Collaborate — GitHub.com',
+      body: 'Repo-aware Copilot Chat answers "which issues block CART-003?". The PDP-001 PR gets an auto-generated summary. A rough feature idea gets turned into a well-scoped issue with acceptance criteria — all without leaving github.com.'
+    }
+  };
+
+  const sdlcSteps = document.querySelectorAll('.sdlc-step[data-detail]');
+  const sdlcDetailEl = document.getElementById('sdlc-detail');
+  const sdlcDetailTitle = document.getElementById('sdlc-detail-title');
+  const sdlcDetailBody = document.getElementById('sdlc-detail-body');
+
+  const toggleSdlcStep = step => {
+    const key = step.dataset.detail;
+    const info = sdlcDetails[key];
+    if (!info) return;
+
+    const wasActive = step.classList.contains('active');
+    sdlcSteps.forEach(s => {
+      s.classList.remove('active');
+      s.setAttribute('aria-expanded', 'false');
+    });
+
+    if (wasActive) {
+      sdlcDetailEl.classList.remove('is-open');
+      sdlcDetailEl.setAttribute('aria-hidden', 'true');
+    } else {
+      step.classList.add('active');
+      step.setAttribute('aria-expanded', 'true');
+      sdlcDetailTitle.textContent = info.title;
+      sdlcDetailBody.innerHTML = info.body;
+      sdlcDetailEl.classList.add('is-open');
+      sdlcDetailEl.setAttribute('aria-hidden', 'false');
+    }
+  };
+
+  sdlcSteps.forEach(step => {
+    step.addEventListener('click', () => { toggleSdlcStep(step); });
+    step.addEventListener('keydown', e => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        e.stopPropagation();
+        toggleSdlcStep(step);
+      }
+    });
+  });
+
+  // Auto-activate the "Code" step so its content is visible by default
+  const codeStep = document.querySelector('.sdlc-step[data-detail="code"]');
+  if (codeStep) toggleSdlcStep(codeStep);
+
+  update();
+</script>
+</body>
+</html>
