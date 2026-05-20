@@ -84,6 +84,7 @@ let currentFilter = "all";
 // ===== RENDER PRODUCTS =====
 function renderProducts(filter = "all") {
   const grid = document.getElementById("productsGrid");
+  if (!grid) return; // grid is absent on pages other than index.html
   const filtered = filter === "all" ? PRODUCTS : PRODUCTS.filter(p => p.category === filter);
   grid.innerHTML = filtered.map(productCard).join("");
 }
@@ -155,8 +156,10 @@ function renderSearchBanner() {
   if (!query) return;
 
   const banner = document.getElementById("search-banner");
+  const title = document.getElementById("search-results-title");
+  if (!banner || !title) return; // banner absent on pages other than index.html
   // VULNERABLE: unsanitized user input written directly to innerHTML — GHAS CodeQL flags this
-  document.getElementById("search-results-title").innerHTML = `Showing results for: <strong>${query}</strong>`;
+  title.innerHTML = `Showing results for: <strong>${query}</strong>`;
   banner.style.display = "block";
 }
 

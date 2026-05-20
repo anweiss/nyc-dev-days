@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Flash Sale — TechMart</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <!-- ===== HEADER ===== -->
+  <header class="site-header">
+    <div class="container header-inner">
+      <a href="index.html" class="logo">⚡ TechMart</a>
+      <nav class="nav">
+        <a href="index.html#products">Products</a>
+        <a href="index.html#deals">Deals</a>
+        <a href="index.html#about">About</a>
+        <button class="btn-ghost" onclick="showStub('Login / Sign Up')">Sign In</button>
+      </nav>
+      <button class="cart-btn" onclick="showStub('Shopping Cart')">
+        🛒 <span class="cart-count" id="cartCount">0</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- ===== FLASH SALE HERO ===== -->
+  <section class="flash-hero">
+    <div class="container flash-hero-inner">
+      <a href="index.html" class="flash-back">← Back to store</a>
+      <span class="badge badge-flash">⚡ Flash Sale</span>
+      <h1>Up to 40% Off — Today Only</h1>
+      <p>Limited-time deals on top-rated gadgets. Promo code <strong>FLASH40</strong> is applied automatically at checkout.</p>
+
+      <!-- Countdown -->
+      <div class="countdown" id="countdown" aria-live="polite">
+        <div class="countdown-block"><span class="countdown-num" id="cdHours">--</span><span class="countdown-label">hours</span></div>
+        <div class="countdown-sep">:</div>
+        <div class="countdown-block"><span class="countdown-num" id="cdMinutes">--</span><span class="countdown-label">minutes</span></div>
+        <div class="countdown-sep">:</div>
+        <div class="countdown-block"><span class="countdown-num" id="cdSeconds">--</span><span class="countdown-label">seconds</span></div>
+      </div>
+
+      <!-- Sale ended state -->
+      <div class="sale-ended" id="saleEnded" hidden>
+        <div class="sale-ended-icon">⌛</div>
+        <h2>Sale Ended</h2>
+        <p>This flash sale has ended. Check back soon for our next round of deals!</p>
+        <a href="index.html" class="btn-primary">Return to TechMart</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== FLASH SALE PRODUCTS ===== -->
+  <section class="section" id="flash-products-section">
+    <div class="container">
+      <div class="section-header">
+        <h2>On Sale Now</h2>
+        <span class="coming-soon">Promo: FLASH40</span>
+      </div>
+      <div class="products-grid" id="flashProductsGrid"></div>
+    </div>
+  </section>
+
+  <!-- ===== FOOTER ===== -->
+  <footer class="site-footer">
+    <div class="container footer-inner">
+      <div class="footer-brand">
+        <span class="logo">⚡ TechMart</span>
+        <p>A demo app for agentic workflow projects.</p>
+      </div>
+      <div class="footer-links">
+        <strong>Quick Links</strong>
+        <a href="index.html#products">Products</a>
+        <a href="index.html#deals">Deals</a>
+        <a href="index.html#about">About</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <div class="container">© 2025 TechMart Demo · Built for NYC Dev Days</div>
+    </div>
+  </footer>
+
+  <!-- ===== STUB MODAL (reused from main page) ===== -->
+  <div class="modal-overlay" id="stubModal" onclick="closeModal()">
+    <div class="modal" onclick="event.stopPropagation()">
+      <div class="modal-icon">🚧</div>
+      <h3 id="modalTitle">Feature Not Yet Implemented</h3>
+      <p id="modalBody">This feature is on the backlog and hasn't been built yet.</p>
+      <div class="modal-meta" id="modalMeta"></div>
+      <button class="btn-primary" onclick="closeModal()">Got it</button>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+  <script src="flash-sale.js"></script>
+</body>
+</html>
