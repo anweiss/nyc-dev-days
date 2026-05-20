@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Product Detail — TechMart</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <header class="site-header">
+    <div class="container header-inner">
+      <a href="index.html" class="logo">⚡ TechMart</a>
+      <nav class="nav">
+        <a href="index.html#products">Products</a>
+        <a href="index.html#deals">Deals</a>
+        <a href="index.html#about">About</a>
+        <button class="btn-ghost" onclick="showStub('Login / Sign Up')">Sign In</button>
+      </nav>
+      <button class="cart-btn" onclick="showStub('Shopping Cart')">
+        🛒 <span class="cart-count" id="cartCount">0</span>
+      </button>
+    </div>
+  </header>
+
+  <div class="container" style="padding-top: 2rem;">
+    <nav class="breadcrumb" id="breadcrumb" aria-label="breadcrumb"></nav>
+  </div>
+
+  <main class="section">
+    <div class="container" id="pdp-content"></div>
+  </main>
+
+  <div class="modal-overlay" id="stubModal" onclick="closeModal()">
+    <div class="modal" onclick="event.stopPropagation()">
+      <div class="modal-icon">🚧</div>
+      <h3 id="modalTitle">Feature Not Yet Implemented</h3>
+      <p id="modalBody">This feature is on the backlog and hasn't been built yet.</p>
+      <div class="modal-meta" id="modalMeta"></div>
+      <button class="btn-primary" onclick="closeModal()">Got it</button>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+  <script>
+    function renderProductDetail() {
+      const params = new URLSearchParams(window.location.search);
+      const id = parseInt(params.get('id'), 10);
+      const product = PRODUCTS.find(p => p.id === id);
+      const content = document.getElementById('pdp-content');
+      const breadcrumb = document.getElementById('breadcrumb');
+
+      if (!product) {
+        content.innerHTML = `
+          <div class="stub-block" style="max-width:480px;margin:4rem auto;text-align:center">
+            <div class="stub-icon">🔍</div>
+            <h2>Product not found</h2>
+            <p>The product you're looking for doesn't exist or has been removed.</p>
+            <a href="index.html" class="btn-primary" style="display:inline-block;margin-top:1rem">Back to Catalog</a>
+          </div>`;
+        return;
+      }
+
+      document.title = `${product.name} — TechMart`;
+
+      const category = product.category.charAt(0).toUpperCase() + product.category.slice(1);
+      breadcrumb.innerHTML = `
+        <a href="index.html">Home</a> &rsaquo;
+        <a href="index.html#products" onclick="sessionStorage.setItem('filter','${product.category}')">
+          ${category}
+        </a> &rsaquo;
+        <span>${product.name}</span>`;
+
+      const stars = '★'.repeat(Math.floor(product.rating)) +
+        (product.rating % 1 >= 0.5 ? '½' : '') +
+        '☆'.repeat(5 - Math.ceil(product.rating));
+
+      const originalHtml = product.original
+        ? `<span class="original" style="font-size:1rem;color:var(--text-muted);text-decoration:line-through;margin-left:.5rem">$${product.original}</span>` : '';
+
+      const addClick = product.badge === 'stub'
+        ? `showStub('Product Detail Page')`
+        : `addToCart(${product.id})`;
+      const addLabel = product.badge === 'stub' ? 'Unavailable' : 'Add to Cart';
+
+      content.innerHTML = `
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:4rem;align-items:start">
+          <div>
+            <div class="product-img-placeholder large" style="font-size:8rem;padding:3rem;border-radius:20px;background:var(--bg-alt)">${product.emoji}</div>
+          </div>
+          <div>
+            <div class="product-category" style="margin-bottom:.5rem">${category}</div>
+            <h1 style="font-size:2rem;font-weight:800;margin-bottom:.5rem">${product.name}</h1>
+            <div style="font-size:1rem;margin-bottom:1rem" title="${product.rating}/5">${stars} <span style="color:var(--text-muted)">(${product.reviews} reviews)</span></div>
+            <div style="font-size:2rem;font-weight:800;color:var(--primary);margin-bottom:1.5rem">$${product.price}${originalHtml}</div>
+            <p style="color:var(--text-muted);margin-bottom:2rem">
+              Experience the next level of technology with the ${product.name}. Crafted for performance and designed to last, this is TechMart's top pick in the ${category} category.
+            </p>
+            <div style="display:flex;gap:1rem;flex-wrap:wrap">
+              <button class="btn-primary" style="font-size:1rem;padding:.8rem 2rem" onclick="${addClick}">${addLabel}</button>
+              <button class="btn-ghost" onclick="showStub('Wishlist')">♡ Save to Wishlist</button>
+            </div>
+          </div>
+        </div>
+        <div style="margin-top:3rem">
+          <a href="index.html" style="color:var(--primary);font-weight:600">← Back to all ${category}</a>
+        </div>`;
+    }
+
+    renderProductDetail();
+  </script>
+</body>
+</html>
