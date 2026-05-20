@@ -9,7 +9,7 @@
 ## Prerequisites
 
 - [ ] VS Code open with TechMart demo-app
-- [ ] A suitable TechMart enhancement issue ready (e.g., "Add a rating sort option to the filter bar")
+- [ ] A suitable TechMart enhancement issue ready — use [#34 "Add product sort to filter bar"](https://github.com/anweiss/nyc-dev-days/issues/34) (price low/high, highest rated)
 
 ---
 
@@ -37,7 +37,7 @@ Walk through the interaction:
 
 ### Step 2 — Agentic approach (coding agent)
 
-Close VS Code. Navigate to GitHub.com and find the pre-created issue for the same task (e.g., "Add product sort to filter bar" with full acceptance criteria).
+Close VS Code. Navigate to GitHub.com and open the pre-created issue for the same task: [#34 "Add product sort to filter bar"](https://github.com/anweiss/nyc-dev-days/issues/34) (full acceptance criteria included).
 
 Assign the issue to Copilot.
 
